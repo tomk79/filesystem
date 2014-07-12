@@ -1,0 +1,14 @@
+{
+    "name": "tomk79/filesystem",
+    "description": "file system utility.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tomoya Koyanagi",
+            "email": "tomk79@gmail.com"
+        }
+    ],
+    "require": {
+
+    }
+}
