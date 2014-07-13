@@ -12,11 +12,12 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	private $fs;
 
 	public function setup(){
+		mb_internal_encoding('UTF-8');
 		$this->fs = new tomk79\filesystem();
 	}
 
 	// ----------------------------------------------------------------------------
-	// ユーティリティテスト
+	// ユーティリティのテスト
 
 	/**
 	 * 絶対パス解決のテスト
@@ -62,6 +63,50 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals( $ls[$i++], 'data' );
 		$this->assertEquals( $ls[$i++], 'filesystemTest.php' );
 		$this->assertEquals( $ls[$i++], 'mktest' );
+	}
+
+	/**
+	 * 文字列変換のテスト
+	 */
+	public function testTextConvert(){
+
+		// 改行コード
+		$this->assertEquals(
+			$this->fs->convert_crlf('aa'."\r".'bb'."\r\n"),
+			'aa'."\n".'bb'."\n"
+		);
+
+		$this->assertEquals(
+			$this->fs->convert_crlf('aa'."\r".'bb'."\r\n", 'LF'),
+			'aa'."\n".'bb'."\n"
+		);
+
+		$this->assertEquals(
+			$this->fs->convert_crlf('aa'."\r".'bb'."\r\n", 'lf'),
+			'aa'."\n".'bb'."\n"
+		);
+
+		$this->assertEquals(
+			$this->fs->convert_crlf('aa'."\r".'bb'."\r\n", 'crlf'),
+			'aa'."\r\n".'bb'."\r\n"
+		);
+
+		// 文字コード
+		$sample = mb_convert_encoding( '日本語の文字列(UTF-8)', 'UTF-8', mb_internal_encoding() );
+
+		$this->assertNotEquals(
+			mb_convert_encoding($sample, 'SJIS-win', mb_internal_encoding()),
+			$sample
+		);
+
+		$this->assertEquals(
+			$this->fs->convert_encoding(
+				$this->fs->convert_encoding($sample, 'SJIS-win'),
+				'UTF-8'
+			),
+			$sample
+		);
+
 	}
 
 
@@ -225,12 +270,33 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	// CSVファイル操作のテスト
 
 	/**
-	 * dataProvidor: CSVデータ
+	 * CSVファイル読み込みのテスト
+	 * @depends testGetRealpath
 	 */
-	public function csvProvider(){
-		return array(
-			array( __DIR__.'/data/test01.csv' ) ,
+	public function testReadCsv(){
+
+		// 読み込むテスト
+		$csvPath = __DIR__.'/data/test01.csv';
+		clearstatcache();
+		$this->assertTrue( $this->fs->is_file( $csvPath ) );
+
+		$csv01 = $this->fs->read_csv( $csvPath );
+		$this->assertEquals( gettype($csv01), gettype(array()) );
+		$this->assertCount( 11, $csv01 );
+		$this->assertCount(  4, $csv01[0] );
+		$this->assertCount(  3, $csv01[1] );
+		$this->assertEquals( $csv01[1][1], 'te,st' );
+		$this->assertEquals( $csv01[2][0], 'te"st' );
+
+		$this->assertEquals( $csv01[7][1], '日本語1-2' );
+		$this->assertEquals( $csv01[8][1], '日本語2-2' );
+
+		$this->assertEquals(
+			$this->fs->convert_crlf($csv01[10][0]),
+			$this->fs->convert_crlf('このセルは、改行を含みます。'."\n\n".'ここまでで1つのセルです。')
 		);
+
 	}
+
 
 }

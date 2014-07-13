@@ -15,11 +15,6 @@ namespace tomk79;
 class filesystem{
 
 	/**
-	 * ファイルオープンリソースのリスト
-	 */
-	private $file = array();
-
-	/**
 	 * ファイルおよびディレクトリ操作時のデフォルトパーミッション
 	 */
 	private $default_permission = array('dir'=>0775,'file'=>0775);
@@ -301,7 +296,7 @@ class filesystem{
 		}
 
 		clearstatcache();
-		$fp = $this->fopen( $filepath, 'w' );
+		$fp = fopen( $filepath, 'w' );
 		if( !is_resource( $fp ) ){
 			return false;
 		}
@@ -313,7 +308,7 @@ class filesystem{
 			}
 		}
 
-		$this->fclose($filepath);
+		fclose($fp);
 
 		$this->chmod( $filepath , $perm );
 		clearstatcache();
@@ -517,35 +512,41 @@ class filesystem{
 	 * 
 	 * @param string $path 対象のCSVファイルのパス
 	 * @param array $options オプション
+	 * - delimiter = 区切り文字(省略時、カンマ)
+	 * - enclosure = クロージャー文字(省略時、ダブルクオート)
+	 * - size = 一度に読み込むサイズ(省略時、10000)
+	 * - charset = 文字セット(省略時、UTF-8)
 	 * @return array|bool 読み込みに成功した場合、行列を格納した配列、失敗した場合には `false` を返します。
 	 */
 	public function read_csv( $path , $options = array() ){
-		#	$options['charset'] は、保存されているCSVファイルの文字エンコードです。
-		#	省略時は SJIS-win から、内部エンコーディングに変換します。
+		// $options['charset'] は、保存されているCSVファイルの文字エンコードです。
+		// 省略時は UTF-8 から、内部エンコーディングに変換します。
 
 		$path = $this->normalize_path($path);
 
-		if( !@is_file( $path ) ){
-			#	ファイルがなければfalseを返す
+		if( !$this->is_file( $path ) ){
+			// ファイルがなければfalseを返す
 			return false;
 		}
 
 		if( !strlen( @$options['delimiter'] ) )    { $options['delimiter'] = ','; }
 		if( !strlen( @$options['enclosure'] ) )    { $options['enclosure'] = '"'; }
 		if( !strlen( @$options['size'] ) )         { $options['size'] = 10000; }
-		if( !strlen( @$options['charset'] ) )      { $options['charset'] = 'UTF-8'; }
+		if( !strlen( @$options['charset'] ) )      { $options['charset'] = 'UTF-8'; }//←CSVの文字セット
 
 		$RTN = array();
-		if( !$this->fopen($path,'r') ){ return false; }
-		$filelink = $this->get_file_resource($path);
-		if( !is_resource( $filelink ) || !is_null( @$this->file[$path]['contents'] ) ){
-			return $this->file[$path]['contents'];
+		$fp = fopen( $path, 'r' );
+		if( !is_resource( $fp ) ){
+			return false;
 		}
-		while( $SMMEMO = fgetcsv( $filelink , intval( $options['size'] ) , $options['delimiter'] , $options['enclosure'] ) ){
-			$SMMEMO = @mb_convert_encoding( $SMMEMO , mb_internal_encoding() , $options['charset'].',UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP' );
+
+		while( $SMMEMO = fgetcsv( $fp , intval( $options['size'] ) , $options['delimiter'] , $options['enclosure'] ) ){
+			foreach( $SMMEMO as $key=>$row ){
+				$SMMEMO[$key] = mb_convert_encoding( $row , mb_internal_encoding() , $options['charset'].',UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP' );
+			}
 			array_push( $RTN , $SMMEMO );
 		}
-		$this->fclose($path);
+		fclose($fp);
 		return $RTN;
 	}//read_csv()
 
@@ -554,11 +555,12 @@ class filesystem{
 	 * 
 	 * @param array $array 2次元配列
 	 * @param array $options オプション
+	 * - charset = 文字セット(省略時、UTF-8)
 	 * @return string 生成されたCSV形式のテキスト
 	 */
 	public function mk_csv( $array , $options = array() ){
-		#	$options['charset'] は、出力されるCSV形式の文字エンコードを指定します。
-		#	省略時は Shift_JIS に変換して返します。
+		// $options['charset'] は、出力されるCSV形式の文字エンコードを指定します。
+		// 省略時は UTF-8 に変換して返します。
 		if( !is_array( $array ) ){ $array = array(); }
 
 		if( !strlen( $options['charset'] ) ){
@@ -569,7 +571,7 @@ class filesystem{
 			if( is_null( $Line ) ){ continue; }
 			if( !is_array( $Line ) ){ $Line = array(); }
 			foreach( $Line as $cell ){
-				$cell = @mb_convert_encoding( $cell , $options['charset'] , mb_internal_encoding().',UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP' );
+				$cell = mb_convert_encoding( $cell , $options['charset'] , mb_internal_encoding().',UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP' );
 				if( preg_match( '/"/' , $cell ) ){
 					$cell = preg_replace( '/"/' , '""' , $cell);
 				}
@@ -581,7 +583,7 @@ class filesystem{
 			$RTN = preg_replace( '/,$/' , '' , $RTN );
 			$RTN .= "\r\n";
 		}
-		return	$RTN;
+		return $RTN;
 	}//mk_csv()
 
 	/**
@@ -735,7 +737,7 @@ class filesystem{
 		closedir($dr);
 		if( strlen( $this->filesystem_encoding ) ){
 			//PxFW 0.6.4 追加
-			$RTN = @$this->convert_encoding( $RTN );
+			$RTN = @$this->convert_filesystem_encoding( $RTN );
 		}
 		usort($RTN, "strnatcmp");
 		return	$RTN;
@@ -873,8 +875,8 @@ class filesystem{
 
 		if( strlen( $this->filesystem_encoding ) ){
 			//PxFW 0.6.4 追加
-			$dir_a = @$this->convert_encoding( $dir_a );
-			$dir_b = @$this->convert_encoding( $dir_b );
+			$dir_a = @$this->convert_filesystem_encoding( $dir_a );
+			$dir_b = @$this->convert_filesystem_encoding( $dir_b );
 		}
 
 		if( ( @is_file( $dir_a ) && !@is_file( $dir_b ) ) || ( !@is_file( $dir_a ) && @is_file( $dir_b ) ) ){
@@ -890,8 +892,8 @@ class filesystem{
 			if( $options['compare_filecontent'] ){
 				#	ファイルの内容も比較する設定の場合、
 				#	それぞれファイルを開いて同じかどうかを比較
-				$filecontent_a = $this->file_get_contents( $dir_a );
-				$filecontent_b = $this->file_get_contents( $dir_b );
+				$filecontent_a = $this->read_file( $dir_a );
+				$filecontent_b = $this->read_file( $dir_b );
 				if( $filecontent_a !== $filecontent_b ){
 					return false;
 				}
@@ -972,7 +974,7 @@ class filesystem{
 	 * @return string 正規化されたパス
 	 */
 	public function normalize_path($path){
-		$path = $this->convert_encoding( $path );//文字コードを揃える
+		$path = $this->convert_filesystem_encoding( $path );//文字コードを揃える
 		$path = preg_replace( '/\\/|\\\\/s', '/', $path );//一旦スラッシュに置き換える。
 		if( $this->is_unix() ){
 			// Windows以外だった場合に、ボリュームラベルを受け取ったら削除する
@@ -985,137 +987,14 @@ class filesystem{
 
 
 
-
-
 	/**
-	 * ファイルを開き、ファイルリソースをセットする。
-	 * 
-	 * @param string $filepath ファイルのパス
-	 * @param string $mode モード
-	 * @param bool $flock ファイルをロックするフラグ
-	 * @return resource|bool 成功したらファイルリソースを、失敗したら `false` を返します。
-	 */
-	private function fopen( $filepath , $mode = 'r' , $flock = true ){
-		$filepath_fsenc = $filepath;
-		if( strlen( $this->filesystem_encoding ) ){
-			//PxFW 0.6.4 追加
-			$filepath_fsenc = @$this->convert_encoding( $filepath_fsenc );
-		}
-
-		$filepath = $this->get_realpath( $filepath );
-
-		#	すでに開かれていたら
-		if( is_resource( @$this->file[$filepath]['res'] ) ){
-			if( $this->file[$filepath]['mode'] != $mode ){
-				#	$modeが前回のアクセスと違っていたら、
-				#	前回の接続を一旦closeして、開きなおす。
-				$this->fclose( $filepath );
-			}else{
-				#	前回と$modeが一緒であれば、既に開いているので、
-				#	ここで終了。
-				return	$this->file[$filepath]['res'];
-			}
-		}
-
-		#	対象がディレクトリだったら開けません。
-		if( @is_dir( $filepath_fsenc ) ){
-			return false;
-		}
-
-		#	ファイルが存在するかどうか確認
-		if( @is_file( $filepath_fsenc ) ){
-			$filepath = $this->realpath_as_unix( $filepath );
-			#	対象のパーミッションをチェック
-			switch( strtolower($mode) ){
-				case 'r':
-					if( !$this->is_readable( $filepath ) ){ return false; }
-					break;
-				case 'w':
-				case 'a':
-				case 'x':
-					if( !$this->is_writable( $filepath ) ){ return false; }
-					break;
-				case 'r+':
-				case 'w+':
-				case 'a+':
-				case 'x+':
-					if( !$this->is_readable( $filepath ) ){ return false; }
-					if( !$this->is_writable( $filepath ) ){ return false; }
-					break;
-			}
-		}
-
-		if( is_array( @$this->file[$filepath] ) ){ $this->fclose( $filepath ); }
-
-		for( $i = 0; $i < 5; $i++ ){
-			$res = @fopen( $filepath_fsenc , $mode );
-			if( $res ){ break; }		#	openに成功したらループを抜ける
-			sleep(1);
-		}
-		if( !is_resource( $res ) ){ return false; }	#	5回挑戦して読み込みが成功しなかった場合、falseを返す
-		if( $flock ){ flock( $res , LOCK_EX ); }
-		if( @is_file( $filepath_fsenc ) ){
-			$filepath = $this->realpath_as_unix( $filepath );
-		}
-		$this->file[$filepath]['filepath'] = $filepath;
-		$this->file[$filepath]['res'] = $res;
-		$this->file[$filepath]['mode'] = $mode;
-		$this->file[$filepath]['flock'] = $flock;
-		return	$res;
-	}//fopen()
-
-	/**
-	 * ファイルのリソースを取得する。
-	 * 
-	 * @param string $filepath ファイルのパス
-	 * @return resource ファイルリソース
-	 */
-	private function get_file_resource( $filepath ){
-		$filepath = $this->get_realpath($filepath);
-		return	$this->file[$filepath]['res'];
-	}//get_file_resource()
-
-	/**
-	 * 開いているファイルを閉じる。
-	 * 
-	 * @param string $filepath 閉じるファイルパス
-	 * @return bool 成功時 `true`、失敗時 `false` を返します。
-	 */
-	private function fclose( $filepath ){
-		$filepath = $this->get_realpath( $filepath );
-		if( !$this->is_file_open( $filepath ) ){
-			#	ファイルを開いていない状態だったらスキップ
-			return false;
-		}
-
-		if( $this->file[$filepath]['flock'] ){
-			flock( $this->file[$filepath]['res'] , LOCK_UN );
-		}
-		fclose( $this->file[$filepath]['res'] );
-		unset( $this->file[$filepath] );
-		return true;
-	}
-
-	/**
-	 * ファイルを開いている状態か確認する。
-	 * 
-	 * @param string $filepath 調査対象のファイルパス
-	 * @return bool すでに開いている場合 `true`、開いていない場合に `false` を返します。
-	 */
-	private function is_file_open( $filepath ){
-		$filepath = $this->get_realpath( $filepath );
-		if( !@array_key_exists( $filepath , $this->file ) ){ return false; }
-		if( !@is_array( $this->file[$filepath] ) ){ return false; }
-		return true;
-	}
-
-	/**
-	 * 受け取ったテキストを、指定の文字セットに変換する。
+	 * 受け取ったテキストを、ファイルシステムエンコードに変換する。
 	 * 
 	 * @param mixed $text テキスト
 	 * @return string 文字セット変換後のテキスト
 	 */
-	private function convert_encoding( $text ){
+	private function convert_filesystem_encoding( $text ){
+		$RTN = $text;
 		if( !is_callable( 'mb_internal_encoding' ) ){
 			return $text;
 		}
@@ -1123,58 +1002,95 @@ class filesystem{
 			return $text;
 		}
 
-		$encode = $this->filesystem_encoding;
-		if( !strlen( $encode ) ){
-			$encode = mb_internal_encoding();
-		}
-		if( !strlen( $encodefrom ) ){
-			$encodefrom = mb_internal_encoding().',UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP,JIS,ASCII';
-		}
+		$to_encoding = $this->filesystem_encoding;
+		$from_encoding = mb_internal_encoding().',UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP,JIS,ASCII';
 
-		if( is_array( $text ) ){
-			$RTN = array();
-			if( !count( $text ) ){ return $text; }
-			$TEXT_KEYS = array_keys( $text );
-			foreach( $TEXT_KEYS as $Line ){
-				$KEY = @mb_convert_encoding( $Line , $encode , $encodefrom );
-				if( is_array( $text[$Line] ) ){
-					$RTN[$KEY] = $this->convert_encoding( $text[$Line] );
-				}else{
-					$RTN[$KEY] = @mb_convert_encoding( $text[$Line] , $encode , $encodefrom );
-				}
-			}
-		}else{
-			if( !strlen( $text ) ){ return $text; }
-			$RTN = @mb_convert_encoding( $text );
-		}
-		return $RTN;
-	}
+		return $this->convert_encoding( $text, $to_encoding, $from_encoding );
+
+	}//convert_filesystem_encoding()
 
 	/**
-	 * 絶対パスをUNIXパスにして返す
-	 *
-	 * この関数は、PHPの `realpath()` のラッパーですが、
-	 * Windows環境でも、UNIX同様、スラッシュ区切りのパスを返す点が異なります。
-	 *
-	 * @param string $path パス
-	 * @return string 絶対パス
+	 * 受け取ったテキストを、ファイルシステムエンコードに変換する。
+	 * 
+	 * @param mixed $text テキスト
+	 * @param string $to_encoding 文字セット(省略時、内部文字セット)
+	 * @param string $from_encoding 変換前の文字セット
+	 * @return string 文字セット変換後のテキスト
 	 */
-	private function realpath_as_unix(){
-		// PicklesFramework 0.2.2 追加
-		// realpath()の動作を、
-		// WindowsでもUNIX系と同じスラッシュ区切りのパスで得る。
-		$path = @realpath($path);
-		if( !is_string( $path ) ){
-			// string型じゃなかったら（つまり、falseだったら）
-			return $path;
+	public function convert_encoding( $text, $to_encoding = null, $from_encoding = null ){
+		$RTN = $text;
+		if( !is_callable( 'mb_internal_encoding' ) ){
+			return $text;
 		}
-		if( strpos( $path , '/' ) !== 0 ){
-			// Windowsだったら。
-			$path = preg_replace( '/^[A-Z]:/' , '' , $path );
-			$path = preg_replace( '/\\\\/' , '/' , $path );
-		}
-		return $path;
 
+		$to_encoding_fin = $to_encoding;
+		if( !strlen($to_encoding_fin) ){
+			$to_encoding_fin = mb_internal_encoding();
+		}
+		if( !strlen($to_encoding_fin) ){
+			$to_encoding_fin = 'UTF-8';
+		}
+
+		$from_encoding_fin = (strlen($from_encoding)?$from_encoding.',':'').mb_internal_encoding().',UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP,JIS,ASCII';
+
+		// ---
+		if( is_array( $text ) ){
+			$RTN = array();
+			if( !count( $text ) ){
+				return $text;
+			}
+			foreach( $text as $key=>$row ){
+				$RTN[$key] = $this->convert_encoding( $row, $to_encoding, $from_encoding );
+			}
+		}else{
+			if( !strlen( $text ) ){
+				return $text;
+			}
+			$RTN = mb_convert_encoding( $text, $to_encoding_fin, $from_encoding_fin );
+		}
+		return $RTN;
+	}//convert_encoding()
+
+	/**
+	 * 受け取ったテキストを、指定の改行コードに変換する。
+	 * 
+	 * @param mixed $text テキスト
+	 * @param string $crlf 改行コード名。CR|LF(default)|CRLF
+	 * @return string 改行コード変換後のテキスト
+	 */
+	public function convert_crlf( $text, $crlf = null ){
+		if( !strlen($crlf) ){
+			$crlf = 'LF';
+		}
+		$crlf_code = "\n";
+		switch(strtoupper($crlf)){
+			case 'CR':
+				$crlf_code = "\r";
+				break;
+			case 'CRLF':
+				$crlf_code = "\r\n";
+				break;
+			case 'LF':
+			default:
+				$crlf_code = "\n";
+				break;
+		}
+		$RTN = $text;
+		if( is_array( $text ) ){
+			$RTN = array();
+			if( !count( $text ) ){
+				return $text;
+			}
+			foreach( $text as $key=>$val ){
+				$RTN[$key] = $this->convert_crlf( $val , $crlf );
+			}
+		}else{
+			if( !strlen( $text ) ){
+				return $text;
+			}
+			$RTN = preg_replace( '/\r\n|\r|\n/', $crlf_code, $text );
+		}
+		return $RTN;
 	}
 
 }
