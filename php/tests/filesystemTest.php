@@ -299,4 +299,42 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	}
 
 
+	/**
+	 * CSV形式のデータを作成するテスト
+	 */
+	public function testMkCsv(){
+
+		$this->assertEquals(
+			$this->fs->mk_csv(
+				array(
+					array('a','b','c'),
+					array('d','e','f'),
+				)
+			),
+			'"a","b","c"'."\n".'"d","e","f"'."\n"
+		);
+
+		$this->assertEquals(
+			$this->fs->mk_csv(
+				array(
+					array('a','b,c'),
+					array('d','e"e','f'),
+				)
+			),
+			'"a","b,c"'."\n".'"d","e""e","f"'."\n"
+		);
+
+		$this->assertEquals(
+			$this->fs->mk_csv(
+				array(
+					array('a','日本語を含むCSV形式'),
+					array('d','日本語を含むCSV形式','f'),
+				)
+			),
+			'"a","日本語を含むCSV形式"'."\n".'"d","日本語を含むCSV形式","f"'."\n"
+		);
+
+	}
+
+
 }

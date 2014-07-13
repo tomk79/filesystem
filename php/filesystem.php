@@ -553,6 +553,8 @@ class filesystem{
 	/**
 	 * 配列をCSV形式に変換する。
 	 * 
+	 * 改行コードはLFで出力されます。
+	 * 
 	 * @param array $array 2次元配列
 	 * @param array $options オプション
 	 * - charset = 文字セット(省略時、UTF-8)
@@ -581,7 +583,7 @@ class filesystem{
 				$RTN .= $cell.',';
 			}
 			$RTN = preg_replace( '/,$/' , '' , $RTN );
-			$RTN .= "\r\n";
+			$RTN .= "\n";
 		}
 		return $RTN;
 	}//mk_csv()
