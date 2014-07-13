@@ -38,7 +38,7 @@ class filesystem{
 			$this->default_permission['file'] = octdec( $conf->file_default_permission );
 		}
 		if( strlen( $conf->dir_default_permission ) ){
-			$this->default_permission['file'] = octdec( $conf->dir_default_permission );
+			$this->default_permission['dir'] = octdec( $conf->dir_default_permission );
 		}
 		if( strlen( $conf->filesystem_encoding ) ){
 			$this->filesystem_encoding = octdec( $conf->filesystem_encoding );
@@ -52,13 +52,11 @@ class filesystem{
 	 * @return bool 書き込み可能な場合 `true`、不可能な場合に `false` を返します。
 	 */
 	public function is_writable( $path ){
-		if( strlen( $this->filesystem_encoding ) ){
-			$path = @$this->convert_encoding( $path );
+		$path = $this->normalize_path($path);
+		if( !is_file($path) ){
+			return @is_writable( dirname($path) );
 		}
-		if( @file_exists( $path ) && !@is_writable( $path ) ){
-			return false;
-		}
-		return true;
+		return @is_writable( $path );
 	}//is_writable()
 
 	/**
@@ -68,13 +66,8 @@ class filesystem{
 	 * @return bool 読み込み可能な場合 `true`、不可能な場合に `false` を返します。
 	 */
 	public function is_readable( $path ){
-		if( strlen( $this->filesystem_encoding ) ){
-			$path = @$this->convert_encoding( $path );
-		}
-		if( !@is_readable( $path ) ){
-			return false;
-		}
-		return true;
+		$path = $this->normalize_path($path);
+		return @is_readable( $path );
 	}//is_readable()
 
 	/**
@@ -84,9 +77,7 @@ class filesystem{
 	 * @return bool ファイルが存在する場合 `true`、存在しない場合、またはディレクトリが存在する場合に `false` を返します。
 	 */
 	public function is_file( $path ){
-		if( strlen( $this->filesystem_encoding ) ){
-			$path = @$this->convert_encoding( $path );
-		}
+		$path = $this->normalize_path($path);
 		return @is_file( $path );
 	}//is_file()
 
@@ -97,9 +88,7 @@ class filesystem{
 	 * @return bool ディレクトリが存在する場合 `true`、存在しない場合、またはファイルが存在する場合に `false` を返します。
 	 */
 	public function is_dir( $path ){
-		if( strlen( $this->filesystem_encoding ) ){
-			$path = @$this->convert_encoding( $path );
-		}
+		$path = $this->normalize_path($path);
 		return @is_dir( $path );
 	}//is_dir()
 
@@ -110,9 +99,7 @@ class filesystem{
 	 * @return bool ファイルまたはディレクトリが存在する場合 `true`、存在しない場合に `false` を返します。
 	 */
 	public function file_exists( $path ){
-		if( strlen( $this->filesystem_encoding ) ){
-			$path = @$this->convert_encoding( $path );
-		}
+		$path = $this->normalize_path($path);
 		return @file_exists( $path );
 	}//file_exists()
 
@@ -124,12 +111,10 @@ class filesystem{
 	 * @return bool 成功時に `true`、失敗時に `false` を返します。
 	 */
 	public function mkdir( $dirpath , $perm = null ){
-		if( strlen( $this->filesystem_encoding ) ){
-			$dirpath = @$this->convert_encoding( $dirpath , $this->filesystem_encoding );
-		}
+		$dirpath = $this->normalize_path($dirpath);
 
 		if( @is_dir( $dirpath ) ){
-			#	既にディレクトリがあったら、作成を試みない。
+			// 既にディレクトリがあったら、作成を試みない。
 			$this->chmod( $dirpath , $perm );
 			return true;
 		}
@@ -147,36 +132,146 @@ class filesystem{
 	 * @return bool 成功時に `true`、失敗時に `false` を返します。
 	 */
 	public function mkdir_r( $dirpath , $perm = null ){
-		if( strlen( $this->filesystem_encoding ) ){
-			$dirpath = @$this->convert_encoding( $dirpath );
-		}
+		$dirpath = $this->normalize_path($dirpath);
 
-		if( @is_dir( $dirpath ) ){ return true; }
-		if( @is_file( $dirpath ) ){ return false; }
-		$patharray = explode( '/' , $this->get_realpath( $dirpath ) );
+		if( @is_dir( $dirpath ) ){
+			return true;
+		}
+		if( @is_file( $dirpath ) ){
+			return false;
+		}
+		$patharray = explode( DIRECTORY_SEPARATOR , $this->normalize_path( $dirpath ) );
 		$targetpath = '';
 		foreach( $patharray as $Line ){
 			if( !strlen( $Line ) || $Line == '.' || $Line == '..' ){ continue; }
-			$targetpath = $targetpath.'/'.$Line;
-			if( !@is_dir( $targetpath ) ){
-				$targetpath = @$this->convert_encoding( $targetpath );
-				$this->mkdir( $targetpath , $perm );
+			$targetpath = $targetpath.DIRECTORY_SEPARATOR.$Line;
+			// clearstatcache();
+			if( !$this->is_dir( $targetpath ) ){
+				$targetpath = $this->normalize_path( $targetpath );
+				if( !$this->mkdir( $targetpath , $perm ) ){
+					return false;
+				}
 			}
 		}
 		return true;
 	}//mkdir_r()
 
 	/**
-	 * ファイルを保存する。
+	 * ファイルやディレクトリを中身ごと完全に削除する。
+	 * 
+	 * このメソッドは、ファイルやシンボリックリンクも削除します。
+	 * ディレクトリを削除する場合は、中身ごと完全に削除します。
+	 * シンボリックリンクは、その先を追わず、シンボリックリンク本体のみを削除します。
+	 * 
+	 * @param string $path 対象のパス
+	 * @return bool 成功時に `true`、失敗時に `false` を返します。
+	 */
+	public function rm( $path ){
+		$path = $this->normalize_path($path);
+
+		if( !$this->is_writable( $path ) ){
+			return false;
+		}
+		$path = @realpath( $path );
+		if( $path === false ){ return false; }
+		if( @is_file( $path ) || @is_link( $path ) ){
+			#	ファイルまたはシンボリックリンクの場合の処理
+			$result = @unlink( $path );
+			return	$result;
+
+		}elseif( @is_dir( $path ) ){
+			#	ディレクトリの処理
+			$flist = $this->ls( $path );
+			foreach ( $flist as $Line ){
+				if( $Line == '.' || $Line == '..' ){ continue; }
+				$this->rm( $path.DIRECTORY_SEPARATOR.$Line );
+			}
+			$result = @rmdir( $path );
+			return	$result;
+
+		}
+
+		return false;
+	}//rm()
+
+	/**
+	 * ディレクトリを削除する。
+	 * 
+	 * このメソッドはディレクトリを削除します。
+	 * 中身のない、空のディレクトリ以外は削除できません。
+	 * 
+	 * @param string $path 対象ディレクトリのパス
+	 * @return bool 成功時に `true`、失敗時に `false` を返します。
+	 */
+	public function rmdir( $path ){
+		$path = $this->normalize_path($path);
+
+		if( !$this->is_writable( $path ) ){
+			return false;
+		}
+		$path = @realpath( $path );
+		if( $path === false ){
+			return false;
+		}
+		if( @is_file( $path ) || @is_link( $path ) ){
+			// ファイルまたはシンボリックリンクの場合の処理
+			// ディレクトリ以外は削除できません。
+			return false;
+
+		}elseif( @is_dir( $path ) ){
+			// ディレクトリの処理
+			// rmdir() は再帰的削除を行いません。
+			// 再帰的に削除したい場合は、代わりに `rm()` または `rmdir_r()` を使用します。
+			return @rmdir( $path );
+		}
+
+		return false;
+	}//rmdir()
+
+	/**
+	 * ディレクトリを再帰的に削除する。
+	 * 
+	 * このメソッドはディレクトリを再帰的に削除します。
+	 * 中身のない、空のディレクトリ以外は削除できません。
+	 * 
+	 * @param string $path 対象ディレクトリのパス
+	 * @return bool 成功時に `true`、失敗時に `false` を返します。
+	 */
+	public function rmdir_r( $path ){
+		$path = $this->normalize_path($path);
+
+		if( !$this->is_writable( $path ) ){
+			return false;
+		}
+		$path = @realpath( $path );
+		if( $path === false ){
+			return false;
+		}
+		if( @is_file( $path ) || @is_link( $path ) ){
+			// ファイルまたはシンボリックリンクの場合の処理
+			// ディレクトリ以外は削除できません。
+			return false;
+
+		}elseif( @is_dir( $path ) ){
+			// ディレクトリの処理
+			$filelist = $this->ls($path);
+			foreach( $filelist as $basename ){
+				if( !$this->rmdir_r( $path.DIRECTORY_SEPARATOR.$basename ) ){
+					return false;
+				}
+			}
+			return @rmdir( $path );
+		}
+
+		return false;
+	}//rmdir_r()
+
+
+	/**
+	 * ファイルを上書き保存する。
 	 * 
 	 * このメソッドは、`$filepath` にデータを保存します。
 	 * もともと保存されていた内容は破棄され、新しいデータで上書きします。
-	 * 
-	 * ただし、`fopen()` したリソースは、1回の処理の間保持されるので、
-	 * 1回の処理で同じファイルに対して2回以上コールされた場合は、
-	 * 追記される点に注意してください。
-	 * 1回の処理の間に何度も上書きする必要がある場合は、
-	 * 明示的に `$dbh->fclose($filepath);` をコールし、一旦ファイルを閉じてください。
 	 * 
 	 * @param string $filepath 保存先ファイルのパス
 	 * @param string $content 保存する内容
@@ -184,25 +279,18 @@ class filesystem{
 	 * @return bool 成功時に `true`、失敗時に `false` を返します。
 	 */
 	public function save_file( $filepath , $content , $perm = null ){
-
 		$filepath = $this->get_realpath($filepath);
+		$filepath = $this->normalize_path($filepath);
 
-		if( strlen( $this->filesystem_encoding ) ){
-			$filepath = @$this->convert_encoding( $filepath );
+		if( $this->is_dir( $filepath ) ){
+			return false;
 		}
-
-		if( !$this->is_writable( $filepath ) )	{ return false; }
-		if( @is_dir( $filepath ) ){ return false; }
-		if( @is_file( $filepath ) && !@is_writable( $filepath ) ){ return false; }
-		if( !is_array( @$this->file[$filepath] ) ){
-			$this->fopen( $filepath , 'w' );
-		}elseif( $this->file[$filepath]['mode'] != 'w' ){
-			$this->fclose( $filepath );
-			$this->fopen( $filepath , 'w' );
+		if( !$this->is_writable( $filepath ) ){
+			return false;
 		}
 
 		if( !strlen( $content ) ){
-			#	空白のファイルで上書きしたい場合
+			// 空白のファイルで上書きしたい場合
 			if( @is_file( $filepath ) ){
 				@unlink( $filepath );
 			}
@@ -212,163 +300,36 @@ class filesystem{
 			return @is_file( $filepath );
 		}
 
-		$res = $this->file[$filepath]['res'];
-		if( !is_resource( $res ) ){ return false; }
-		fwrite( $res , $content );
+		clearstatcache();
+		$fp = $this->fopen( $filepath, 'w' );
+		if( !is_resource( $fp ) ){
+			return false;
+		}
+
+		for ($written = 0; $written < strlen($content); $written += $fwrite) {
+			$fwrite = fwrite($fp, substr($content, $written));
+			if ($fwrite === false) {
+				break;
+			}
+		}
+
+		$this->fclose($filepath);
+
 		$this->chmod( $filepath , $perm );
 		clearstatcache();
-		return @is_file( $filepath );
+		return !empty( $written );
 	}//save_file()
 
 	/**
-	 * ファイルを上書き保存して閉じる。
-	 * 
-	 * @param string $filepath 保存先ファイルのパス
-	 * @param string $content 保存する内容
-	 * @param int $perm 保存するファイルに与えるパーミッション
-	 * @return bool 成功時に `true`、失敗時に `false` を返します。
-	 */
-	public function file_overwrite( $filepath , $content , $perm = null ){
-		if( $this->is_file_open( $filepath ) ){
-			#	既に開いているファイルだったら、一旦閉じる。
-			$this->fclose( $filepath );
-		}
-
-		if( strlen( $this->filesystem_encoding ) ){
-			$filepath = @$this->convert_encoding( $filepath );
-		}
-
-		#	ファイルを上書き保存
-		$result = $this->save_file( $filepath , $content , $perm );
-
-		#	ファイルを閉じる
-		$this->fclose( $filepath );
-		return	$result;
-	}//file_overwrite()
-
-	/**
-	 * ファイルの中身を1行ずつ配列にいれて取得する。
-	 * 
-	 * @param string $path ファイルのパス
-	 * @return array ファイル `$path` の内容を1行1要素で格納する配列
-	 */
-	public function file_get_lines( $path ){
-
-		if( strlen( $this->filesystem_encoding ) ){
-			$path = @$this->convert_encoding( $path );
-		}
-
-		if( @is_file( $path ) ){
-			if( !$this->is_readable( $path ) ){ return false; }
-			return	@file( $path );
-		}elseif( preg_match( '/^(?:http:\/\/|https:\/\/)/' , $path ) ){
-			#	対象がウェブコンテンツの場合、
-			#	それを取得しようと試みます。
-			#	しかし、この使用方法は推奨されません。
-			#	対象が、とてもサイズの大きなファイルだったとしても、
-			#	このメソッドはそれを検証しません。
-			#	また、そのように巨大なファイルの場合でも、
-			#	ディスクではなく、メモリにロードします。
-			#	( 2007/01/05 TomK )
-			if( !ini_get( 'allow_url_fopen' ) ){
-				#	PHP設定値 allow_url_fopen が無効な場合は、
-				#	file() によるウェブアクセスができないため。
-				$this->px->error()->error_log( 'php.ini value "allow_url_fopen" is FALSE. So, disable to get Web contents ['.$path.'] on $dbh->file_get_lines();' );
-				return false;
-			}
-			return @file( $path );
-		}
-		return false;
-	}//file_get_lines()
-
-	/**
-	 * ファイルの中身を文字列型にして取得する。
+	 * ファイルの中身を文字列として取得する。
 	 * 
 	 * @param string $path ファイルのパス
 	 * @return string ファイル `$path` の内容
 	 */
-	public function file_get_contents( $path ){
-
-		if( strlen( $this->filesystem_encoding ) ){
-			$path = @$this->convert_encoding( $path );
-		}
-
-		if( @is_file( $path ) ){
-			if( !$this->is_readable( $path ) ){ return false; }
-			return file_get_contents( $path );
-		}elseif( preg_match( '/^(?:http:\/\/|https:\/\/)/' , $path ) ){
-			#	対象がウェブコンテンツの場合、それを取得しようと試みます。
-			#	ただし、ウェブコンテンツをこのメソッドからダウンロードする場合は、
-			#	注意が必要です。
-			#	対象が、とてもサイズの大きなファイルだったとしても、
-			#	このメソッドはそれを検証しません。
-			#	また、そのように巨大なファイルの場合でも、
-			#	ディスクではなく、メモリに直接ロードします。
-			return	$this->get_http_content( $path );
-		}
-		return false;
+	public function read_file( $path ){
+		$path = $this->normalize_path($path);
+		return file_get_contents( $path );
 	}//file_get_contents()
-
-	/**
-	 * HTTP通信からコンテンツを取得する。
-	 * 
-	 * 対象が、とてもサイズの大きなファイルだったとしても、
-	 * このメソッドはそれを検証しないことに注意してください。
-	 * また、そのように巨大なファイルの場合でも、
-	 * ディスクではなく、メモリに直接ロードします。
-	 * 
-	 * @param string $url ファイルのURL
-	 * @param string $saveTo 取得したファイルの保存先パス(省略可)
-	 * @return string|bool `$saveTo` が省略された場合、取得したコンテンツを返します。`$saveTo` が指定された場合、保存成功時に `true`、失敗時に `false` を返します。
-	 */
-	public function get_http_content( $url , $saveTo = null ){
-
-		if( !ini_get('allow_url_fopen') ){
-			#	PHP設定値 allow_url_fopen が無効な場合は、
-			#	file() によるウェブアクセスができないためエラー。
-			return false;
-		}
-		if( preg_match( '/^(?:http:\/\/|https:\/\/)/' , $url ) ){
-			if( !is_null( $saveTo ) ){
-				#	取得したウェブコンテンツを
-				#	ディスクに保存する場合
-
-				if( @is_file( $saveTo ) && !@is_writable( $saveTo ) ){
-					#	保存先ファイルが既に存在するのに、書き込めなかったらfalse;
-					return false;
-
-				}elseif( !@is_file( $saveTo ) && @is_dir( dirname( $saveTo ) ) && !@is_writable( dirname( $saveTo ) ) ){
-					#	保存先ファイルが存在しなくて、
-					#	親ディレクトリがあるのに、書き込めなかったらfalse;
-					return false;
-
-				}
-
-				if( !@is_dir( dirname( $saveTo ) ) ){
-					#	親ディレクトリがなかったら、作ってみる。
-					if( !$this->mkdir_r( dirname( $saveTo ) ) ){
-						#	失敗したらfalse;
-						return false;
-					}
-				}
-
-				#	重たいファイルを考慮して、
-				#	1行ずつディスクに保存していく。
-				$res = $this->fopen( $url , 'r' , false );
-				while( $LINE = @fgets( $res ) ){
-					if( !strlen( $LINE ) ){ break; }
-					$this->save_file( $saveTo , $LINE );
-				}
-				$this->fclose( $url );
-				return true;
-			}
-
-			#	取得したウェブコンテンツのバイナリを
-			#	メモリにロードする場合。
-			return file_get_contents( $url );
-		}
-		return false;
-	}//get_http_content()
 
 	/**
 	 * ファイルの更新日時を比較する。
@@ -381,10 +342,8 @@ class filesystem{
 	 * 同時だった場合に `null` を返します。
 	 */
 	public function is_newer_a_than_b( $path_a , $path_b ){
-		if( strlen( $this->filesystem_encoding ) ){
-			$path_a = @$this->convert_encoding( $path_a );
-			$path_b = @$this->convert_encoding( $path_b );
-		}
+		$path_a = $this->normalize_path($path_a);
+		$path_b = $this->normalize_path($path_b);
 
 		$mtime_a = filemtime( $path_a );
 		$mtime_b = filemtime( $path_b );
@@ -404,10 +363,8 @@ class filesystem{
 	 * @return bool 成功時 `true`、失敗時 `false` を返します。
 	 */
 	public function rename( $original , $newname ){
-		if( strlen( $this->filesystem_encoding ) ){
-			$original = @$this->convert_encoding( $original );
-			$newname  = @$this->convert_encoding( $newname  );
-		}
+		$original = $this->normalize_path($original);
+		$newname  = $this->normalize_path($newname );
 
 		if( !@file_exists( $original ) ){ return false; }
 		if( !$this->is_writable( $original ) ){ return false; }
@@ -415,7 +372,7 @@ class filesystem{
 	}//rename()
 
 	/**
-	 * ファイル名/ディレクトリ名の変更を完全に実行する。
+	 * ファイル名/ディレクトリ名を強制的に変更する。
 	 *
 	 * 移動先の親ディレクトリが存在しない場合にも、親ディレクトリを作成して移動するよう試みます。
 	 *
@@ -423,11 +380,9 @@ class filesystem{
 	 * @param string $newname 変更後のファイルまたはディレクトリ名
 	 * @return bool 成功時 `true`、失敗時 `false` を返します。
 	 */
-	public function rename_complete( $original , $newname ){
-		if( strlen( $this->filesystem_encoding ) ){
-			$original = @$this->convert_encoding( $original );
-			$newname  = @$this->convert_encoding( $newname  );
-		}
+	public function rename_f( $original , $newname ){
+		$original = $this->normalize_path($original);
+		$newname  = $this->normalize_path($newname );
 
 		if( !@file_exists( $original ) ){ return false; }
 		if( !$this->is_writable( $original ) ){ return false; }
@@ -438,7 +393,7 @@ class filesystem{
 			}
 		}
 		return @rename( $original , $newname );
-	}//rename_complete()
+	}//rename_f()
 
 	/**
 	 * 絶対パスを得る。
@@ -449,47 +404,55 @@ class filesystem{
 	 * ただし、ルート直下のディレクトリまでは一致している必要があり、そうでない場合は、`false` を返します。
 	 * 
 	 * @param string $path 対象のパス
-	 * @param string $itemname 再帰的に処理する場合に使用(初回コール時は使用しません)
+	 * @param string $cd カレントディレクトリパス。実在する有効なディレクトリのパスである必要があります。省略時、カレントディレクトリを自動採用します。
 	 * @return string 絶対パス
 	 */
-	public function get_realpath( $path , $itemname = null ){
-		$path = preg_replace( '/\\\\/si' , '/' , $path );
-		$path = preg_replace( '/^\/+/si' , '/' , $path );//先頭のスラッシュを1つにする。
-		$itemname = preg_replace( '/\\\\/si' , '/' , $itemname );
-		$itemname = preg_replace( '/^\/'.'*'.'/' , '/' , $itemname );//先頭のスラッシュを1つにする。
+	public function get_realpath( $path, $cd = null ){
+		$path = $this->normalize_path($path);
 
-		if( $itemname == '/' ){ $itemname = ''; }//スラッシュだけが残ったら、ゼロバイトの文字にする。
-		if( t::realpath( $path ) == '/' ){
-			$rtn = $path.$itemname;
-			$rtn = preg_replace( '/\/+/si' , '/' , $rtn );//先頭のスラッシュを1つにする。
-			return $rtn;
+		if( is_null($cd) ){
+			$cd = '.';
+		}
+		$cd = realpath($cd);
+		if( $cd === false ){
+			return false;
+		}
+		if( !$this->is_dir($cd) ){
+			return false;
 		}
 
-		if( strlen( $this->filesystem_encoding ) ){
-			$path = @$this->convert_encoding( $path );
+		$preg_dirsep = preg_quote(DIRECTORY_SEPARATOR, '/');
+
+		$prefix = '';
+		$localpath = $path;
+		if( preg_match('/^((?:[A-Za-z]\\:'.$preg_dirsep.')|'.$preg_dirsep.'{1,2})(.*?)$/', $path, $matched) ){
+			// もともと絶対パスの指定か調べる
+			$prefix = preg_replace('/'.$preg_dirsep.'$/', '', $matched[1]);
+			$localpath = $matched[2];
+			$cd = null; // 元の指定が絶対パスだったら、カレントディレクトリは関係ないので捨てる。
 		}
 
-		if( @file_exists( $path ) && strlen(t::realpath( $path )) ){
-			return t::realpath( $path ).$itemname;
+		$path = $cd.'/./'.$localpath;
+
+		if( file_exists( $prefix.$path ) ){
+			return realpath( $prefix.$path );
 		}
 
-		if( basename( $path ) == '.' ){
-			#	カレントディレクトリを含むパスへの対応
-			return $this->get_realpath( dirname( $path ) , $itemname );
-		}
-		if( basename( $path ) == '..' ){
-			$count = 0;
-			while( basename( $path ) == '..' && strlen( dirname( $path ) ) && dirname( $path ) != '/' ){
-				$count ++;
-				$path = dirname( $path );
+		$paths = explode( DIRECTORY_SEPARATOR, $path );
+		$path = '';
+
+		foreach( $paths as $row ){
+			if( $row == '' || $row == '.' ){
+				continue;
 			}
-			for( $i = 0; $i < $count; $i++ ){
-				$path = dirname( $path );
+			if( $row == '..' ){
+				$path = dirname($path);
+				continue;
 			}
-			#	ペアレントディレクトリを含むパスへの対応
-			return $this->get_realpath( $path , $itemname );
+			$path .= DIRECTORY_SEPARATOR.$row;
 		}
-		return $this->get_realpath( dirname( $path ) , basename( $path ).$itemname );
+
+		return $prefix.$path;
 	}
 
 	/**
@@ -499,9 +462,8 @@ class filesystem{
 	 * @return array パス情報
 	 */
 	public function pathinfo( $path ){
-		if( strlen( $this->filesystem_encoding ) ){
-			$path = @$this->convert_encoding( $path );
-		}
+		$path = $this->normalize_path($path);
+
 		$pathinfo = pathinfo( $path );
 		$pathinfo['filename'] = $this->trim_extension( $pathinfo['basename'] );
 		return $pathinfo;
@@ -561,11 +523,8 @@ class filesystem{
 		#	$options['charset'] は、保存されているCSVファイルの文字エンコードです。
 		#	省略時は SJIS-win から、内部エンコーディングに変換します。
 
-		if( strlen( $this->filesystem_encoding ) ){
-			$path = @$this->convert_encoding( $path );
-		}
+		$path = $this->normalize_path($path);
 
-		$path = t::realpath( $path );
 		if( !@is_file( $path ) ){
 			#	ファイルがなければfalseを返す
 			return false;
@@ -574,7 +533,7 @@ class filesystem{
 		if( !strlen( @$options['delimiter'] ) )    { $options['delimiter'] = ','; }
 		if( !strlen( @$options['enclosure'] ) )    { $options['enclosure'] = '"'; }
 		if( !strlen( @$options['size'] ) )         { $options['size'] = 10000; }
-		if( !strlen( @$options['charset'] ) )      { $options['charset'] = 'SJIS-win'; }
+		if( !strlen( @$options['charset'] ) )      { $options['charset'] = 'UTF-8'; }
 
 		$RTN = array();
 		if( !$this->fopen($path,'r') ){ return false; }
@@ -591,23 +550,7 @@ class filesystem{
 	}//read_csv()
 
 	/**
-	 * UTF-8のCSVファイルを読み込む
-	 * 
-	 * @param string $path 対象のCSVファイルのパス
-	 * @param array $options オプション
-	 * @return array|bool 読み込みに成功した場合、行列を格納した配列、失敗した場合には `false` を返します。
-	 */
-	public function read_csv_utf8( $path , $options = array() ){
-		#	読み込み時にUTF-8の解釈が優先される。
-		if( !gettype($options) ){
-			$options = array();
-		}
-		$options['charset'] = 'UTF-8';
-		return $this->read_csv( $path , $options );
-	}//read_csv_utf8()
-
-	/**
-	 * 配列をCSV形式に変換する
+	 * 配列をCSV形式に変換する。
 	 * 
 	 * @param array $array 2次元配列
 	 * @param array $options オプション
@@ -618,7 +561,9 @@ class filesystem{
 		#	省略時は Shift_JIS に変換して返します。
 		if( !is_array( $array ) ){ $array = array(); }
 
-		if( !strlen( $options['charset'] ) ){ $options['charset'] = 'SJIS-win'; }
+		if( !strlen( $options['charset'] ) ){
+			$options['charset'] = 'UTF-8';
+		}
 		$RTN = '';
 		foreach( $array as $Line ){
 			if( is_null( $Line ) ){ continue; }
@@ -640,21 +585,6 @@ class filesystem{
 	}//mk_csv()
 
 	/**
-	 * 配列をUTF8-エンコードのCSV形式に変換する。
-	 * 
-	 * @param array $array 2次元配列
-	 * @param array $options オプション
-	 * @return string 生成されたCSV形式のテキスト
-	 */
-	public function mk_csv_utf8( $array , $options = array() ){
-		if( !is_array($options) ){
-			$options = array();
-		}
-		$options['charset'] = 'UTF-8';
-		return $this->mk_csv( $array , $options );
-	}//mk_csv_utf8()
-
-	/**
 	 * ファイルを複製する。
 	 * 
 	 * @param string $from コピー元ファイルのパス
@@ -663,10 +593,8 @@ class filesystem{
 	 * @return bool 成功時に `true`、失敗時に `false` を返します。
 	 */
 	public function copy( $from , $to , $perm = null ){
-		if( strlen( $this->filesystem_encoding ) ){
-			$from = @$this->convert_encoding( $from );
-			$to   = @$this->convert_encoding( $to   );
-		}
+		$from = $this->normalize_path($from);
+		$to   = $this->normalize_path($to  );
 
 		if( !@is_file( $from ) ){
 			return false;
@@ -697,10 +625,8 @@ class filesystem{
 	 * @return bool 成功時に `true`、失敗時に `false` を返します。
 	 */
 	public function copy_r( $from , $to , $perm = null ){
-		if( strlen( $this->filesystem_encoding ) ){
-			$from = @$this->convert_encoding( $from );
-			$to   = @$this->convert_encoding( $to   );
-		}
+		$from = $this->normalize_path($from);
+		$to   = $this->normalize_path($to  );
 
 		$result = true;
 
@@ -721,20 +647,20 @@ class filesystem{
 			$itemlist = $this->ls( $from );
 			foreach( $itemlist as $Line ){
 				if( $Line == '.' || $Line == '..' ){ continue; }
-				if( @is_dir( $from.'/'.$Line ) ){
+				if( @is_dir( $from.DIRECTORY_SEPARATOR.$Line ) ){
 					if( @is_file( $to.'/'.$Line ) ){
 						continue;
-					}elseif( !@is_dir( $to.'/'.$Line ) ){
-						if( !$this->mkdir_r( $to.'/'.$Line ) ){
+					}elseif( !@is_dir( $to.DIRECTORY_SEPARATOR.$Line ) ){
+						if( !$this->mkdir_r( $to.DIRECTORY_SEPARATOR.$Line ) ){
 							$result = false;
 						}
 					}
-					if( !$this->copy_r( $from.'/'.$Line , $to.'/'.$Line , $perm ) ){
+					if( !$this->copy_r( $from.DIRECTORY_SEPARATOR.$Line , $to.DIRECTORY_SEPARATOR.$Line , $perm ) ){
 						$result = false;
 					}
 					continue;
-				}elseif( @is_file( $from.'/'.$Line ) ){
-					if( !$this->copy_r( $from.'/'.$Line , $to.'/'.$Line , $perm ) ){
+				}elseif( @is_file( $from.DIRECTORY_SEPARATOR.$Line ) ){
+					if( !$this->copy_r( $from.DIRECTORY_SEPARATOR.$Line , $to.DIRECTORY_SEPARATOR.$Line , $perm ) ){
 						$result = false;
 					}
 					continue;
@@ -746,94 +672,6 @@ class filesystem{
 	}//copy_r()
 
 	/**
-	 * ファイルを開き、ファイルリソースをセットする。
-	 * 
-	 * @param string $filepath ファイルのパス
-	 * @param string $mode モード
-	 * @param bool $flock ファイルをロックするフラグ
-	 * @return resource|bool 成功したらファイルリソースを、失敗したら `false` を返します。
-	 */
-	private function &fopen( $filepath , $mode = 'r' , $flock = true ){
-		$filepath_fsenc = $filepath;
-		if( strlen( $this->filesystem_encoding ) ){
-			//PxFW 0.6.4 追加
-			$filepath_fsenc = @$this->convert_encoding( $filepath_fsenc );
-		}
-
-		$filepath = $this->get_realpath( $filepath );
-
-		#	すでに開かれていたら
-		if( is_resource( @$this->file[$filepath]['res'] ) ){
-			if( $this->file[$filepath]['mode'] != $mode ){
-				#	$modeが前回のアクセスと違っていたら、
-				#	前回の接続を一旦closeして、開きなおす。
-				$this->fclose( $filepath );
-			}else{
-				#	前回と$modeが一緒であれば、既に開いているので、
-				#	ここで終了。
-				return	$this->file[$filepath]['res'];
-			}
-		}
-
-		#	対象がディレクトリだったら開けません。
-		if( @is_dir( $filepath_fsenc ) ){
-			return false;
-		}
-
-		#	ファイルが存在するかどうか確認
-		if( @is_file( $filepath_fsenc ) ){
-			$filepath = t::realpath( $filepath );
-			#	対象のパーミッションをチェック
-			switch( strtolower($mode) ){
-				case 'r':
-					if( !$this->is_readable( $filepath ) ){ return false; }
-					break;
-				case 'w':
-				case 'a':
-				case 'x':
-					if( !$this->is_writable( $filepath ) ){ return false; }
-					break;
-				case 'r+':
-				case 'w+':
-				case 'a+':
-				case 'x+':
-					if( !$this->is_readable( $filepath ) ){ return false; }
-					if( !$this->is_writable( $filepath ) ){ return false; }
-					break;
-			}
-		}
-
-		if( is_array( @$this->file[$filepath] ) ){ $this->fclose( $filepath ); }
-
-		for( $i = 0; $i < 5; $i++ ){
-			$res = @fopen( $filepath_fsenc , $mode );
-			if( $res ){ break; }		#	openに成功したらループを抜ける
-			sleep(1);
-		}
-		if( !is_resource( $res ) ){ return false; }	#	5回挑戦して読み込みが成功しなかった場合、falseを返す
-		if( $flock ){ flock( $res , LOCK_EX ); }
-		if( @is_file( $filepath_fsenc ) ){
-			$filepath = t::realpath( $filepath );
-		}
-		$this->file[$filepath]['filepath'] = $filepath;
-		$this->file[$filepath]['res'] = $res;
-		$this->file[$filepath]['mode'] = $mode;
-		$this->file[$filepath]['flock'] = $flock;
-		return	$res;
-	}//fopen()
-
-	/**
-	 * ファイルのリソースを取得する。
-	 * 
-	 * @param string $filepath ファイルのパス
-	 * @return resource ファイルリソース
-	 */
-	private function &get_file_resource( $filepath ){
-		$filepath = $this->get_realpath($filepath);
-		return	$this->file[$filepath]['res'];
-	}//get_file_resource()
-
-	/**
 	 * パーミッションを変更する。
 	 * 
 	 * @param string $filepath 対象のパス
@@ -841,9 +679,7 @@ class filesystem{
 	 * @return bool 成功時に `true`、失敗時に `false` を返します。
 	 */
 	public function chmod( $filepath , $perm = null ){
-		if( strlen( $this->filesystem_encoding ) ){
-			$filepath = @$this->convert_encoding( $filepath );
-		}
+		$filepath = $this->normalize_path($filepath);
 
 		if( is_null( $perm ) ){
 			if( @is_dir( $filepath ) ){
@@ -853,9 +689,9 @@ class filesystem{
 			}
 		}
 		if( is_null( $perm ) ){
-			$perm = 0775;	//	コンフィグに設定モレがあった場合
+			$perm = 0775; // コンフィグに設定モレがあった場合
 		}
-		return	@chmod( $filepath , $perm );
+		return @chmod( $filepath , $perm );
 	}//chmod()
 
 	/**
@@ -865,15 +701,14 @@ class filesystem{
 	 * @return int|bool 成功時に 3桁の数字、失敗時に `false` を返します。
 	 */
 	public function get_permission( $path ){
-		if( strlen( $this->filesystem_encoding ) ){
-			//PxFW 0.6.4 追加
-			$path = @$this->convert_encoding( $path );
+		$path = $this->normalize_path($path);
+
+		if( !@file_exists( $path ) ){
+			return false;
 		}
-		$path = @realpath( $path );
-		if( !@file_exists( $path ) ){ return false; }
 		$perm = rtrim( sprintf( "%o\n" , fileperms( $path ) ) );
 		$start = strlen( $perm ) - 3;
-		return	substr( $perm , $start , 3 );
+		return substr( $perm , $start , 3 );
 	}//get_permission()
 
 
@@ -884,11 +719,8 @@ class filesystem{
 	 * @return array|bool 成功時にファイルまたはディレクトリ名の一覧を格納した配列、失敗時に `false` を返します。
 	 */
 	public function ls($path){
-		if( strlen( $this->filesystem_encoding ) ){
-			//PxFW 0.6.4 追加
-			$path = @$this->convert_encoding( $path );
-		}
-		$path = @realpath($path);
+		$path = $this->normalize_path($path);
+
 		if( $path === false ){ return false; }
 		if( !@file_exists( $path ) ){ return false; }
 		if( !@is_dir( $path ) ){ return false; }
@@ -910,83 +742,6 @@ class filesystem{
 	}//ls()
 
 	/**
-	 * ファイルやディレクトリを中身ごと完全に削除する。
-	 * 
-	 * このメソッドは、ファイルやシンボリックリンクも削除します。
-	 * ディレクトリを削除する場合は、中身ごと完全に削除します。
-	 * シンボリックリンクは、その先を追わず、シンボリックリンク本体のみを削除します。
-	 * 
-	 * @param string $path 対象のパス
-	 * @return bool 成功時に `true`、失敗時に `false` を返します。
-	 */
-	public function rm( $path ){
-
-		if( strlen( $this->filesystem_encoding ) ){
-			$path = @$this->convert_encoding( $path );
-		}
-
-		if( !$this->is_writable( $path ) ){
-			return false;
-		}
-		$path = @realpath( $path );
-		if( $path === false ){ return false; }
-		if( @is_file( $path ) || @is_link( $path ) ){
-			#	ファイルまたはシンボリックリンクの場合の処理
-			$result = @unlink( $path );
-			return	$result;
-
-		}elseif( @is_dir( $path ) ){
-			#	ディレクトリの処理
-			$flist = $this->ls( $path );
-			foreach ( $flist as $Line ){
-				if( $Line == '.' || $Line == '..' ){ continue; }
-				$this->rm( $path.'/'.$Line );
-			}
-			$result = @rmdir( $path );
-			return	$result;
-
-		}
-
-		return false;
-	}//rm()
-
-	/**
-	 * ディレクトリを削除する。
-	 * 
-	 * このメソッドはディレクトリを削除します。
-	 * 中身のない、空のディレクトリ以外は削除できません。
-	 * 
-	 * @param string $path 対象ディレクトリのパス
-	 * @return bool 成功時に `true`、失敗時に `false` を返します。
-	 */
-	public function rmdir( $path ){
-
-		if( strlen( $this->filesystem_encoding ) ){
-			$path = @$this->convert_encoding( $path );
-		}
-
-		if( !$this->is_writable( $path ) ){
-			return false;
-		}
-		$path = @realpath( $path );
-		if( $path === false ){ return false; }
-		if( @is_file( $path ) || @is_link( $path ) ){
-			#   ファイルまたはシンボリックリンクの場合の処理
-			#   ディレクトリ以外は削除できません。
-			return false;
-
-		}elseif( @is_dir( $path ) ){
-			#   ディレクトリの処理
-			#   rmdir() は再帰的削除を行いません。
-			#   再帰的に削除したい場合は、代わりに rm() を使用します。
-			$result = @rmdir( $path );
-			return	$result;
-		}
-
-		return false;
-	}//rmdir()
-
-	/**
 	 * ディレクトリの内部を比較し、$comparisonに含まれない要素を$targetから削除する。
 	 *
 	 * @param string $target クリーニング対象のディレクトリパス
@@ -996,10 +751,8 @@ class filesystem{
 	public function compare_and_cleanup( $target , $comparison ){
 		if( is_null( $comparison ) || is_null( $target ) ){ return false; }
 
-		if( strlen( $this->filesystem_encoding ) ){
-			$target = @$this->convert_encoding( $target );
-			$comparison = @$this->convert_encoding( $comparison );
-		}
+		$target = $this->normalize_path($target);
+		$comparison = $this->normalize_path($comparison);
 
 		if( !@file_exists( $comparison ) && @file_exists( $target ) ){
 			$this->rm( $target );
@@ -1014,7 +767,7 @@ class filesystem{
 
 		foreach ( $flist as $Line ){
 			if( $Line == '.' || $Line == '..' ){ continue; }
-			$this->compare_and_cleanup( $target.'/'.$Line , $comparison.'/'.$Line );
+			$this->compare_and_cleanup( $target.DIRECTORY_SEPARATOR.$Line , $comparison.DIRECTORY_SEPARATOR.$Line );
 		}
 
 		return true;
@@ -1041,9 +794,7 @@ class filesystem{
 	 * @return bool 成功時 `true`、失敗時 `false` を返します。
 	 */
 	public function remove_empty_dir( $path , $options = array() ){
-		if( strlen( $this->filesystem_encoding ) ){
-			$path = @$this->convert_encoding( $path );
-		}
+		$path = $this->normalize_path($path);
 
 		if( !$this->is_writable( $path ) ){ return false; }
 		if( !@is_dir( $path ) ){ return false; }
@@ -1086,13 +837,13 @@ class filesystem{
 			if( $Line == '.' || $Line == '..' ){ continue; }
 			if( @is_link( $path.'/'.$Line ) ){
 				#	シンボリックリンクはシカトする。
-			}elseif( @is_dir( $path.'/'.$Line ) ){
+			}elseif( @is_dir( $path.DIRECTORY_SEPARATOR.$Line ) ){
 				if( $switch_donext ){
 					#	さらに掘れと指令があれば、掘る。
-					$this->remove_empty_dir( $path.'/'.$Line , $options );
+					$this->remove_empty_dir( $path.DIRECTORY_SEPARATOR.$Line , $options );
 				}
 			}
-			if( @file_exists( $path.'/'.$Line ) ){
+			if( @file_exists( $path.DIRECTORY_SEPARATOR.$Line ) ){
 				$alive = true;
 			}
 		}
@@ -1211,9 +962,118 @@ class filesystem{
 	}//is_windows()
 
 
+	/**
+	 * パスを正規化する。
+	 * 
+	 * 受け取ったパスを、OSの標準的な表現に正規化します。
+	 * - スラッシュとバックスラッシュの違いを吸収し、`DIRECTORY_SEPARATOR` に置き換えます。
+	 * 
+	 * @param string $path 正規化するパス
+	 * @return string 正規化されたパス
+	 */
+	public function normalize_path($path){
+		$path = $this->convert_encoding( $path );//文字コードを揃える
+		$path = preg_replace( '/\\/|\\\\/s', '/', $path );//一旦スラッシュに置き換える。
+		if( $this->is_unix() ){
+			// Windows以外だった場合に、ボリュームラベルを受け取ったら削除する
+			$path = preg_replace( '/^[A-Z]\\:\\//s', '/', $path );//Windowsのボリュームラベルを削除
+		}
+		$path = preg_replace( '/\\/+/s', '/', $path );//重複するスラッシュを1つにまとめる
+		$path = preg_replace( '/\\/|\\\\/s', DIRECTORY_SEPARATOR, $path );
+		return $path;
+	}
 
 
 
+
+
+	/**
+	 * ファイルを開き、ファイルリソースをセットする。
+	 * 
+	 * @param string $filepath ファイルのパス
+	 * @param string $mode モード
+	 * @param bool $flock ファイルをロックするフラグ
+	 * @return resource|bool 成功したらファイルリソースを、失敗したら `false` を返します。
+	 */
+	private function fopen( $filepath , $mode = 'r' , $flock = true ){
+		$filepath_fsenc = $filepath;
+		if( strlen( $this->filesystem_encoding ) ){
+			//PxFW 0.6.4 追加
+			$filepath_fsenc = @$this->convert_encoding( $filepath_fsenc );
+		}
+
+		$filepath = $this->get_realpath( $filepath );
+
+		#	すでに開かれていたら
+		if( is_resource( @$this->file[$filepath]['res'] ) ){
+			if( $this->file[$filepath]['mode'] != $mode ){
+				#	$modeが前回のアクセスと違っていたら、
+				#	前回の接続を一旦closeして、開きなおす。
+				$this->fclose( $filepath );
+			}else{
+				#	前回と$modeが一緒であれば、既に開いているので、
+				#	ここで終了。
+				return	$this->file[$filepath]['res'];
+			}
+		}
+
+		#	対象がディレクトリだったら開けません。
+		if( @is_dir( $filepath_fsenc ) ){
+			return false;
+		}
+
+		#	ファイルが存在するかどうか確認
+		if( @is_file( $filepath_fsenc ) ){
+			$filepath = $this->realpath_as_unix( $filepath );
+			#	対象のパーミッションをチェック
+			switch( strtolower($mode) ){
+				case 'r':
+					if( !$this->is_readable( $filepath ) ){ return false; }
+					break;
+				case 'w':
+				case 'a':
+				case 'x':
+					if( !$this->is_writable( $filepath ) ){ return false; }
+					break;
+				case 'r+':
+				case 'w+':
+				case 'a+':
+				case 'x+':
+					if( !$this->is_readable( $filepath ) ){ return false; }
+					if( !$this->is_writable( $filepath ) ){ return false; }
+					break;
+			}
+		}
+
+		if( is_array( @$this->file[$filepath] ) ){ $this->fclose( $filepath ); }
+
+		for( $i = 0; $i < 5; $i++ ){
+			$res = @fopen( $filepath_fsenc , $mode );
+			if( $res ){ break; }		#	openに成功したらループを抜ける
+			sleep(1);
+		}
+		if( !is_resource( $res ) ){ return false; }	#	5回挑戦して読み込みが成功しなかった場合、falseを返す
+		if( $flock ){ flock( $res , LOCK_EX ); }
+		if( @is_file( $filepath_fsenc ) ){
+			$filepath = $this->realpath_as_unix( $filepath );
+		}
+		$this->file[$filepath]['filepath'] = $filepath;
+		$this->file[$filepath]['res'] = $res;
+		$this->file[$filepath]['mode'] = $mode;
+		$this->file[$filepath]['flock'] = $flock;
+		return	$res;
+	}//fopen()
+
+	/**
+	 * ファイルのリソースを取得する。
+	 * 
+	 * @param string $filepath ファイルのパス
+	 * @return resource ファイルリソース
+	 */
+	private function get_file_resource( $filepath ){
+		$filepath = $this->get_realpath($filepath);
+		return	$this->file[$filepath]['res'];
+	}//get_file_resource()
 
 	/**
 	 * 開いているファイルを閉じる。
@@ -1247,26 +1107,6 @@ class filesystem{
 		if( !@array_key_exists( $filepath , $this->file ) ){ return false; }
 		if( !@is_array( $this->file[$filepath] ) ){ return false; }
 		return true;
-	}
-
-	/**
-	 * パスを正規化する。
-	 * 
-	 * 受け取ったパスを、OSの標準的な表現に正規化します。
-	 * - スラッシュとバックスラッシュの違いを吸収し、`DIRECTORY_SEPARATOR` に置き換えます。
-	 * 
-	 * @param string $path 正規化するパス
-	 * @return string 正規化されたパス
-	 */
-	private function normalize_path($path){
-		$path = $this->convert_encoding( $path );//文字コードを揃える
-		$path = preg_replace( '/\\/|\\\\/s', '/', $path );//一旦スラッシュに置き換える。
-		if( $this->is_windows() ){
-			$path = preg_replace( '/^[A-Z]\\:\\//s', '/', $path );//Windowsのボリュームラベルを削除
-		}
-		$path = preg_replace( '/\\/+/s', '/', $path );//重複するスラッシュを1つにまとめる
-		$path = preg_replace( '/\\/|\\\\/s', DIRECTORY_SEPARATOR, $path );
-		return $path;
 	}
 
 	/**
@@ -1308,6 +1148,33 @@ class filesystem{
 			$RTN = @mb_convert_encoding( $text );
 		}
 		return $RTN;
+	}
+
+	/**
+	 * 絶対パスをUNIXパスにして返す
+	 *
+	 * この関数は、PHPの `realpath()` のラッパーですが、
+	 * Windows環境でも、UNIX同様、スラッシュ区切りのパスを返す点が異なります。
+	 *
+	 * @param string $path パス
+	 * @return string 絶対パス
+	 */
+	private function realpath_as_unix(){
+		// PicklesFramework 0.2.2 追加
+		// realpath()の動作を、
+		// WindowsでもUNIX系と同じスラッシュ区切りのパスで得る。
+		$path = @realpath($path);
+		if( !is_string( $path ) ){
+			// string型じゃなかったら（つまり、falseだったら）
+			return $path;
+		}
+		if( strpos( $path , '/' ) !== 0 ){
+			// Windowsだったら。
+			$path = preg_replace( '/^[A-Z]:/' , '' , $path );
+			$path = preg_replace( '/\\\\/' , '/' , $path );
+		}
+		return $path;
+
 	}
 
 }
