@@ -396,27 +396,25 @@ class filesystem{
 	 * パス情報を受け取り、スラッシュから始まるサーバー内部絶対パスに変換して返します。
 	 * 
 	 * このメソッドは、PHPの `realpath()` と異なり、存在しないパスも絶対パスに変換します。
-	 * ただし、ルート直下のディレクトリまでは一致している必要があり、そうでない場合は、`false` を返します。
 	 * 
 	 * @param string $path 対象のパス
-	 * @param string $cd カレントディレクトリパス。実在する有効なディレクトリのパスである必要があります。省略時、カレントディレクトリを自動採用します。
+	 * @param string $cd カレントディレクトリパス。実在する有効なディレクトリのパス、または絶対パスの表現で指定される必要があります。省略時、カレントディレクトリを自動採用します。
 	 * @return string 絶対パス
 	 */
 	public function get_realpath( $path, $cd = null ){
 		$path = $this->normalize_path($path);
+		if( is_null($cd) ){ $cd = '.'; }
+		$cd = $this->normalize_path($cd);
+		$preg_dirsep = preg_quote(DIRECTORY_SEPARATOR, '/');
 
-		if( is_null($cd) ){
-			$cd = '.';
+		if( $this->is_dir($cd) ){
+			$cd = realpath($cd);
+		}elseif( !preg_match('/^((?:[A-Za-z]\\:'.$preg_dirsep.')|'.$preg_dirsep.'{1,2})(.*?)$/', $cd) ){
+			$cd = false;
 		}
-		$cd = realpath($cd);
 		if( $cd === false ){
 			return false;
 		}
-		if( !$this->is_dir($cd) ){
-			return false;
-		}
-
-		$preg_dirsep = preg_quote(DIRECTORY_SEPARATOR, '/');
 
 		$prefix = '';
 		$localpath = $path;
@@ -442,6 +440,9 @@ class filesystem{
 			}
 			if( $row == '..' ){
 				$path = dirname($path);
+				if($path == realpath('/')){
+					$path = '';
+				}
 				continue;
 			}
 			$path .= DIRECTORY_SEPARATOR.$row;

@@ -48,6 +48,11 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 			$this->fs->normalize_path('//mktest/aaa.txt')
 		);
 
+		$this->assertEquals(
+			$this->fs->get_realpath('../../../mktest/aaa.txt','/aaa/'),
+			$this->fs->normalize_path('/mktest/aaa.txt')
+		);
+
 	}
 
 	/**
@@ -63,6 +68,9 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals( $ls[$i++], 'data' );
 		$this->assertEquals( $ls[$i++], 'filesystemTest.php' );
 		$this->assertEquals( $ls[$i++], 'mktest' );
+
+		$this->assertFalse( array_search('.', $ls) );
+		$this->assertFalse( array_search('..', $ls) );
 	}
 
 	/**
@@ -110,6 +118,17 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	}
 
 
+	/**
+	 * ファイルの更新日時を比較するテスト
+	 */
+	public function testIsNewerAThanB(){
+		touch(__DIR__.'/data/timestamp/file_new.txt');
+		$this->assertTrue( $this->fs->is_newer_a_than_b(
+			__DIR__.'/data/timestamp/file_new.txt',
+			__DIR__.'/data/timestamp/file_old.txt'
+		) );
+	}
+
 
 	// ----------------------------------------------------------------------------
 	// ディレクトリ操作のテスト
@@ -128,6 +147,7 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	/**
 	 * ディレクトリ作成のテスト(単階層)
 	 * @depends testGetRealpath
+	 * @depends testLs
 	 * @dataProvider directoryProvider
 	 */
 	public function testMkDir( $path, $sub_dir ){
@@ -143,6 +163,7 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	/**
 	 * ディレクトリ削除のテスト(単階層)
 	 * @depends testGetRealpath
+	 * @depends testLs
 	 * @depends testMkDir
 	 * @dataProvider directoryProvider
 	 */
@@ -165,6 +186,7 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	/**
 	 * ディレクトリ作成のテスト(多階層)
 	 * @depends testGetRealpath
+	 * @depends testLs
 	 * @dataProvider directoryProvider
 	 */
 	public function testMkDirR( $path, $sub_dir ){
@@ -189,6 +211,7 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	/**
 	 * ディレクトリ削除のテスト(多階層)
 	 * @depends testGetRealpath
+	 * @depends testLs
 	 * @depends testMkDirR
 	 * @dataProvider directoryProvider
 	 */
@@ -227,6 +250,7 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	/**
 	 * ファイル作成のテスト
 	 * @depends testGetRealpath
+	 * @depends testLs
 	 * @dataProvider fileProvider
 	 */
 	public function testSaveFile( $path, $content ){
@@ -242,11 +266,17 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 		// ファイルの存在確認(存在するべき)
 		clearstatcache();
 		$this->assertTrue( $this->fs->is_file( $path ) );
+
+		// ファイルを読み込んで、内容を確認
+		clearstatcache();
+		$this->assertEquals( $this->fs->read_file( $path ), $content );
+
 	}
 
 	/**
 	 * ファイル削除のテスト
 	 * @depends testGetRealpath
+	 * @depends testLs
 	 * @depends testSaveFile
 	 * @dataProvider fileProvider
 	 */
@@ -256,13 +286,95 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 		clearstatcache();
 		$this->assertTrue( $this->fs->is_writable( $path ) );
 
-		// ファイルを作成
+		// ファイルを削除
 		clearstatcache();
 		$this->assertTrue( $this->fs->rm( $path ) );
 
 		// ファイルの存在確認(存在しないべき)
 		clearstatcache();
 		$this->assertFalse( $this->fs->is_file( $path ) );
+	}
+
+	/**
+	 * ファイル移動のテスト
+	 * @depends testGetRealpath
+	 * @depends testLs
+	 * @depends testSaveFile
+	 * @depends testRmFile
+	 * @dataProvider renameProvider
+	 */
+	public function testRename( $path_1, $path_2 ){
+
+		// ファイルを作成
+		clearstatcache();
+		$this->assertTrue( $this->fs->save_file( $path_1, 'rename_test...' ) );
+
+		// ファイルの存在確認(存在するべき)
+		clearstatcache();
+		$this->assertTrue( $this->fs->is_file( $path_1 ) );
+
+		// ファイルを移動
+		clearstatcache();
+		$this->assertTrue( $this->fs->rename( $path_1, $path_2 ) );
+
+		// ファイルの存在確認(1はなくて、2はあるべき)
+		clearstatcache();
+		$this->assertFalse( $this->fs->is_file( $path_1 ) );
+		$this->assertTrue( $this->fs->is_file( $path_2 ) );
+
+		// ファイルを削除
+		clearstatcache();
+		$this->assertTrue( $this->fs->rm( $path_2 ) );
+
+		// ファイルの存在確認(存在しないべき)
+		clearstatcache();
+		$this->assertFalse( $this->fs->is_file( $path_2 ) );
+
+	}
+	public function renameProvider(){
+		return array(
+			array( __DIR__.'/mktest/test_1.txt', __DIR__.'/mktest/test_2.txt' ) ,
+			array( __DIR__.'/mktest/テスト1.txt', __DIR__.'/mktest/テスト2.txt' ) ,
+		);
+	}
+
+	/**
+	 * 深いファイル移動のテスト
+	 * @depends testGetRealpath
+	 * @depends testLs
+	 * @depends testSaveFile
+	 * @depends testRmFile
+	 * @depends testRmDirR
+	 * @depends testRename
+	 */
+	public function testRenameR(){
+		$this->fs->mkdir( __DIR__.'/mktest/testdir1/' );
+		$this->fs->save_file( __DIR__.'/mktest/testdir1/test1.txt', 'rename_test...' );
+
+		// ファイルとディレクトリの存在確認(存在するべき)
+		clearstatcache();
+		$this->assertTrue( $this->fs->is_dir( __DIR__.'/mktest/testdir1/' ) );
+		$this->assertTrue( $this->fs->is_file( __DIR__.'/mktest/testdir1/test1.txt' ) );
+
+		// ディレクトリを移動
+		clearstatcache();
+		$this->assertTrue( $this->fs->rename_f( __DIR__.'/mktest/testdir1/', __DIR__.'/mktest/testdir2/deep3/testdir1/' ) );
+
+		// ファイルの存在確認(1はなくて、2はあるべき)
+		clearstatcache();
+		$this->assertFalse( $this->fs->is_dir( __DIR__.'/mktest/testdir1/' ) );
+		$this->assertFalse( $this->fs->is_file( __DIR__.'/mktest/testdir1/test1.txt' ) );
+		clearstatcache();
+		$this->assertTrue( $this->fs->is_file( __DIR__.'/mktest/testdir2/deep3/testdir1/test1.txt' ) );
+
+		// ファイルを削除
+		clearstatcache();
+		$this->assertTrue( $this->fs->rm( __DIR__.'/mktest/testdir2/' ) );
+
+		// ファイルの存在確認(存在しないべき)
+		clearstatcache();
+		$this->assertFalse( $this->fs->is_file( __DIR__.'/mktest/testdir2/' ) );
+
 	}
 
 
@@ -272,6 +384,7 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	/**
 	 * CSVファイル読み込みのテスト
 	 * @depends testGetRealpath
+	 * @depends testLs
 	 */
 	public function testReadCsv(){
 
