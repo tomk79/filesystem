@@ -128,14 +128,13 @@ class filesystem{
 	 */
 	public function mkdir_r( $dirpath , $perm = null ){
 		$dirpath = $this->normalize_path($dirpath);
-
 		if( @is_dir( $dirpath ) ){
 			return true;
 		}
 		if( @is_file( $dirpath ) ){
 			return false;
 		}
-		$patharray = explode( DIRECTORY_SEPARATOR , $this->normalize_path( $dirpath ) );
+		$patharray = explode( DIRECTORY_SEPARATOR , $this->normalize_path( $this->get_realpath($dirpath) ) );
 		$targetpath = '';
 		foreach( $patharray as $Line ){
 			if( !strlen( $Line ) || $Line == '.' || $Line == '..' ){ continue; }
