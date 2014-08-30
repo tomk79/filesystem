@@ -1,7 +1,7 @@
 filesystem
 ==========
 
-# Usage
+## Usage
 
 Define `tomk79/filesystem` in your `composer.json`.
 
@@ -14,17 +14,24 @@ Define `tomk79/filesystem` in your `composer.json`.
 }
 ```
 
-Install command.
+Execute `composer install` command.
 
 ```
 $ composer install
 ```
 
-
-# Test
+Or update command.
 
 ```
-$ cd (project dir)
+$ composer update
+```
+
+
+
+## Test
+
+```
+$ cd (project directory)
 $ ./vendor/phpunit/phpunit/phpunit php/tests/filesystemTest
 ```
 
