@@ -483,7 +483,7 @@ class filesystem{
 	 */
 	public function trim_extension( $path ){
 		$pathinfo = pathinfo( $path );
-		$RTN = preg_replace( '/\.'.preg_quote( $pathinfo['extension'] , '/' ).'$/' , '' , $path );
+		$RTN = preg_replace( '/\.'.preg_quote( $pathinfo['extension'] , DIRECTORY_SEPARATOR ).'$/' , '' , $path );
 		return $RTN;
 	}
 
@@ -653,7 +653,7 @@ class filesystem{
 			foreach( $itemlist as $Line ){
 				if( $Line == '.' || $Line == '..' ){ continue; }
 				if( @is_dir( $from.DIRECTORY_SEPARATOR.$Line ) ){
-					if( @is_file( $to.'/'.$Line ) ){
+					if( @is_file( $to.DIRECTORY_SEPARATOR.$Line ) ){
 						continue;
 					}elseif( !@is_dir( $to.DIRECTORY_SEPARATOR.$Line ) ){
 						if( !$this->mkdir_r( $to.DIRECTORY_SEPARATOR.$Line ) ){
@@ -840,7 +840,7 @@ class filesystem{
 		$alive = false;
 		foreach ( $flist as $Line ){
 			if( $Line == '.' || $Line == '..' ){ continue; }
-			if( @is_link( $path.'/'.$Line ) ){
+			if( @is_link( $path.DIRECTORY_SEPARATOR.$Line ) ){
 				#	シンボリックリンクはシカトする。
 			}elseif( @is_dir( $path.DIRECTORY_SEPARATOR.$Line ) ){
 				if( $switch_donext ){
@@ -920,7 +920,7 @@ class filesystem{
 			foreach( $contlist_a as $Line ){
 				#	Aをチェック
 				if( $Line == '..' || $Line == '.' ){ continue; }
-				if( !$this->compare_dir( $dir_a.'/'.$Line , $dir_b.'/'.$Line , $options ) ){
+				if( !$this->compare_dir( $dir_a.DIRECTORY_SEPARATOR.$Line , $dir_b.DIRECTORY_SEPARATOR.$Line , $options ) ){
 					return false;
 				}
 				$done[$Line] = true;
@@ -930,7 +930,7 @@ class filesystem{
 				#	Aに含まれなかったBをチェック
 				if( $done[$Line] ){ continue; }
 				if( $Line == '..' || $Line == '.' ){ continue; }
-				if( !$this->compare_dir( $dir_a.'/'.$Line , $dir_b.'/'.$Line , $options ) ){
+				if( !$this->compare_dir( $dir_a.DIRECTORY_SEPARATOR.$Line , $dir_b.DIRECTORY_SEPARATOR.$Line , $options ) ){
 					return false;
 				}
 				$done[$Line] = true;
