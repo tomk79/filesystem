@@ -29,14 +29,14 @@ class filesystem{
 	 * @param object $conf 設定オブジェクト
 	 */
 	public function __construct($conf=null){
-		if( strlen( $conf->file_default_permission ) ){
+		if( @strlen( $conf->file_default_permission ) ){
 			$this->default_permission['file'] = octdec( $conf->file_default_permission );
 		}
-		if( strlen( $conf->dir_default_permission ) ){
+		if( @strlen( $conf->dir_default_permission ) ){
 			$this->default_permission['dir'] = octdec( $conf->dir_default_permission );
 		}
-		if( strlen( $conf->filesystem_encoding ) ){
-			$this->filesystem_encoding = octdec( $conf->filesystem_encoding );
+		if( @strlen( $conf->filesystem_encoding ) ){
+			$this->filesystem_encoding = trim( $conf->filesystem_encoding );
 		}
 	}
 
