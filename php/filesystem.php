@@ -47,7 +47,7 @@ class filesystem{
 	 * @return bool 書き込み可能な場合 `true`、不可能な場合に `false` を返します。
 	 */
 	public function is_writable( $path ){
-		$path = $this->normalize_path($path);
+		$path = $this->localize_path($path);
 		if( !is_file($path) ){
 			return @is_writable( dirname($path) );
 		}
@@ -61,7 +61,7 @@ class filesystem{
 	 * @return bool 読み込み可能な場合 `true`、不可能な場合に `false` を返します。
 	 */
 	public function is_readable( $path ){
-		$path = $this->normalize_path($path);
+		$path = $this->localize_path($path);
 		return @is_readable( $path );
 	}//is_readable()
 
@@ -72,7 +72,7 @@ class filesystem{
 	 * @return bool ファイルが存在する場合 `true`、存在しない場合、またはディレクトリが存在する場合に `false` を返します。
 	 */
 	public function is_file( $path ){
-		$path = $this->normalize_path($path);
+		$path = $this->localize_path($path);
 		return @is_file( $path );
 	}//is_file()
 
@@ -83,7 +83,7 @@ class filesystem{
 	 * @return bool ディレクトリが存在する場合 `true`、存在しない場合、またはファイルが存在する場合に `false` を返します。
 	 */
 	public function is_dir( $path ){
-		$path = $this->normalize_path($path);
+		$path = $this->localize_path($path);
 		return @is_dir( $path );
 	}//is_dir()
 
@@ -94,7 +94,7 @@ class filesystem{
 	 * @return bool ファイルまたはディレクトリが存在する場合 `true`、存在しない場合に `false` を返します。
 	 */
 	public function file_exists( $path ){
-		$path = $this->normalize_path($path);
+		$path = $this->localize_path($path);
 		return @file_exists( $path );
 	}//file_exists()
 
@@ -106,7 +106,7 @@ class filesystem{
 	 * @return bool 成功時に `true`、失敗時に `false` を返します。
 	 */
 	public function mkdir( $dirpath , $perm = null ){
-		$dirpath = $this->normalize_path($dirpath);
+		$dirpath = $this->localize_path($dirpath);
 
 		if( @is_dir( $dirpath ) ){
 			// 既にディレクトリがあったら、作成を試みない。
@@ -127,21 +127,21 @@ class filesystem{
 	 * @return bool 成功時に `true`、失敗時に `false` を返します。
 	 */
 	public function mkdir_r( $dirpath , $perm = null ){
-		$dirpath = $this->normalize_path($dirpath);
+		$dirpath = $this->localize_path($dirpath);
 		if( @is_dir( $dirpath ) ){
 			return true;
 		}
 		if( @is_file( $dirpath ) ){
 			return false;
 		}
-		$patharray = explode( DIRECTORY_SEPARATOR , $this->normalize_path( $this->get_realpath($dirpath) ) );
+		$patharray = explode( DIRECTORY_SEPARATOR , $this->localize_path( $this->get_realpath($dirpath) ) );
 		$targetpath = '';
 		foreach( $patharray as $Line ){
 			if( !strlen( $Line ) || $Line == '.' || $Line == '..' ){ continue; }
 			$targetpath = $targetpath.DIRECTORY_SEPARATOR.$Line;
 			// clearstatcache();
 			if( !$this->is_dir( $targetpath ) ){
-				$targetpath = $this->normalize_path( $targetpath );
+				$targetpath = $this->localize_path( $targetpath );
 				if( !$this->mkdir( $targetpath , $perm ) ){
 					return false;
 				}
@@ -161,7 +161,7 @@ class filesystem{
 	 * @return bool 成功時に `true`、失敗時に `false` を返します。
 	 */
 	public function rm( $path ){
-		$path = $this->normalize_path($path);
+		$path = $this->localize_path($path);
 
 		if( !$this->is_writable( $path ) ){
 			return false;
@@ -198,7 +198,7 @@ class filesystem{
 	 * @return bool 成功時に `true`、失敗時に `false` を返します。
 	 */
 	public function rmdir( $path ){
-		$path = $this->normalize_path($path);
+		$path = $this->localize_path($path);
 
 		if( !$this->is_writable( $path ) ){
 			return false;
@@ -232,7 +232,7 @@ class filesystem{
 	 * @return bool 成功時に `true`、失敗時に `false` を返します。
 	 */
 	public function rmdir_r( $path ){
-		$path = $this->normalize_path($path);
+		$path = $this->localize_path($path);
 
 		if( !$this->is_writable( $path ) ){
 			return false;
@@ -274,7 +274,7 @@ class filesystem{
 	 */
 	public function save_file( $filepath , $content , $perm = null ){
 		$filepath = $this->get_realpath($filepath);
-		$filepath = $this->normalize_path($filepath);
+		$filepath = $this->localize_path($filepath);
 
 		if( $this->is_dir( $filepath ) ){
 			return false;
@@ -321,7 +321,7 @@ class filesystem{
 	 * @return string ファイル `$path` の内容
 	 */
 	public function read_file( $path ){
-		$path = $this->normalize_path($path);
+		$path = $this->localize_path($path);
 		return file_get_contents( $path );
 	}//file_get_contents()
 
@@ -336,8 +336,8 @@ class filesystem{
 	 * 同時だった場合に `null` を返します。
 	 */
 	public function is_newer_a_than_b( $path_a , $path_b ){
-		$path_a = $this->normalize_path($path_a);
-		$path_b = $this->normalize_path($path_b);
+		$path_a = $this->localize_path($path_a);
+		$path_b = $this->localize_path($path_b);
 
 		$mtime_a = filemtime( $path_a );
 		$mtime_b = filemtime( $path_b );
@@ -357,8 +357,8 @@ class filesystem{
 	 * @return bool 成功時 `true`、失敗時 `false` を返します。
 	 */
 	public function rename( $original , $newname ){
-		$original = $this->normalize_path($original);
-		$newname  = $this->normalize_path($newname );
+		$original = $this->localize_path($original);
+		$newname  = $this->localize_path($newname );
 
 		if( !@file_exists( $original ) ){ return false; }
 		if( !$this->is_writable( $original ) ){ return false; }
@@ -375,8 +375,8 @@ class filesystem{
 	 * @return bool 成功時 `true`、失敗時 `false` を返します。
 	 */
 	public function rename_f( $original , $newname ){
-		$original = $this->normalize_path($original);
-		$newname  = $this->normalize_path($newname );
+		$original = $this->localize_path($original);
+		$newname  = $this->localize_path($newname );
 
 		if( !@file_exists( $original ) ){ return false; }
 		if( !$this->is_writable( $original ) ){ return false; }
@@ -401,9 +401,9 @@ class filesystem{
 	 * @return string 絶対パス
 	 */
 	public function get_realpath( $path, $cd = null ){
-		$path = $this->normalize_path($path);
+		$path = $this->localize_path($path);
 		if( is_null($cd) ){ $cd = '.'; }
-		$cd = $this->normalize_path($cd);
+		$cd = $this->localize_path($cd);
 		$preg_dirsep = preg_quote(DIRECTORY_SEPARATOR, '/');
 
 		if( $this->is_dir($cd) ){
@@ -457,7 +457,7 @@ class filesystem{
 	 * @return array パス情報
 	 */
 	public function pathinfo( $path ){
-		$path = $this->normalize_path($path);
+		$path = $this->localize_path($path);
 
 		$pathinfo = pathinfo( $path );
 		$pathinfo['filename'] = $this->trim_extension( $pathinfo['basename'] );
@@ -522,7 +522,7 @@ class filesystem{
 		// $options['charset'] は、保存されているCSVファイルの文字エンコードです。
 		// 省略時は UTF-8 から、内部エンコーディングに変換します。
 
-		$path = $this->normalize_path($path);
+		$path = $this->localize_path($path);
 
 		if( !$this->is_file( $path ) ){
 			// ファイルがなければfalseを返す
@@ -597,8 +597,8 @@ class filesystem{
 	 * @return bool 成功時に `true`、失敗時に `false` を返します。
 	 */
 	public function copy( $from , $to , $perm = null ){
-		$from = $this->normalize_path($from);
-		$to   = $this->normalize_path($to  );
+		$from = $this->localize_path($from);
+		$to   = $this->localize_path($to  );
 
 		if( !@is_file( $from ) ){
 			return false;
@@ -629,8 +629,8 @@ class filesystem{
 	 * @return bool 成功時に `true`、失敗時に `false` を返します。
 	 */
 	public function copy_r( $from , $to , $perm = null ){
-		$from = $this->normalize_path($from);
-		$to   = $this->normalize_path($to  );
+		$from = $this->localize_path($from);
+		$to   = $this->localize_path($to  );
 
 		$result = true;
 
@@ -683,7 +683,7 @@ class filesystem{
 	 * @return bool 成功時に `true`、失敗時に `false` を返します。
 	 */
 	public function chmod( $filepath , $perm = null ){
-		$filepath = $this->normalize_path($filepath);
+		$filepath = $this->localize_path($filepath);
 
 		if( is_null( $perm ) ){
 			if( @is_dir( $filepath ) ){
@@ -705,7 +705,7 @@ class filesystem{
 	 * @return int|bool 成功時に 3桁の数字、失敗時に `false` を返します。
 	 */
 	public function get_permission( $path ){
-		$path = $this->normalize_path($path);
+		$path = $this->localize_path($path);
 
 		if( !@file_exists( $path ) ){
 			return false;
@@ -723,7 +723,7 @@ class filesystem{
 	 * @return array|bool 成功時にファイルまたはディレクトリ名の一覧を格納した配列、失敗時に `false` を返します。
 	 */
 	public function ls($path){
-		$path = $this->normalize_path($path);
+		$path = $this->localize_path($path);
 
 		if( $path === false ){ return false; }
 		if( !@file_exists( $path ) ){ return false; }
@@ -755,8 +755,8 @@ class filesystem{
 	public function compare_and_cleanup( $target , $comparison ){
 		if( is_null( $comparison ) || is_null( $target ) ){ return false; }
 
-		$target = $this->normalize_path($target);
-		$comparison = $this->normalize_path($comparison);
+		$target = $this->localize_path($target);
+		$comparison = $this->localize_path($comparison);
 
 		if( !@file_exists( $comparison ) && @file_exists( $target ) ){
 			$this->rm( $target );
@@ -798,7 +798,7 @@ class filesystem{
 	 * @return bool 成功時 `true`、失敗時 `false` を返します。
 	 */
 	public function remove_empty_dir( $path , $options = array() ){
-		$path = $this->normalize_path($path);
+		$path = $this->localize_path($path);
 
 		if( !$this->is_writable( $path ) ){ return false; }
 		if( !@is_dir( $path ) ){ return false; }
@@ -969,13 +969,31 @@ class filesystem{
 	/**
 	 * パスを正規化する。
 	 * 
-	 * 受け取ったパスを、OSの標準的な表現に正規化します。
-	 * - スラッシュとバックスラッシュの違いを吸収し、`DIRECTORY_SEPARATOR` に置き換えます。
+	 * 受け取ったパスを、スラッシュ区切りの表現に正規化します。
 	 * 
 	 * @param string $path 正規化するパス
 	 * @return string 正規化されたパス
 	 */
 	public function normalize_path($path){
+		$path = $this->convert_filesystem_encoding( $path );//文字コードを揃える
+		$path = preg_replace( '/\\/|\\\\/s', '/', $path );//一旦スラッシュに置き換える。
+		// ボリュームラベルを受け取ったら削除する
+		$path = preg_replace( '/^[A-Z]\\:\\//s', '/', $path );//Windowsのボリュームラベルを削除
+		$path = preg_replace( '/\\/+/s', '/', $path );//重複するスラッシュを1つにまとめる
+		return $path;
+	}
+
+
+	/**
+	 * パスをOSの標準的な表現に変換する。
+	 * 
+	 * 受け取ったパスを、OSの標準的な表現に変換します。
+	 * - スラッシュとバックスラッシュの違いを吸収し、`DIRECTORY_SEPARATOR` に置き換えます。
+	 * 
+	 * @param string $path ローカライズするパス
+	 * @return string ローカライズされたパス
+	 */
+	public function localize_path($path){
 		$path = $this->convert_filesystem_encoding( $path );//文字コードを揃える
 		$path = preg_replace( '/\\/|\\\\/s', '/', $path );//一旦スラッシュに置き換える。
 		if( $this->is_unix() ){
