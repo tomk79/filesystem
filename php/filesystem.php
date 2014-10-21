@@ -490,6 +490,7 @@ class filesystem{
 			$cd = realpath(dirname($cd));
 		}
 		$normalize = function( $tmp_path ){
+			$tmp_path = $this->localize_path( $tmp_path );
 			$preg_dirsep = preg_quote(DIRECTORY_SEPARATOR, '/');
 			if( DIRECTORY_SEPARATOR == '\\' ){
 				$tmp_path = preg_replace( '/^[a-zA-Z]\:/s', '', $tmp_path );
@@ -497,10 +498,11 @@ class filesystem{
 			$tmp_path = preg_replace( '/^('.$preg_dirsep.')+/s', '', $tmp_path );
 			$tmp_path = preg_replace( '/('.$preg_dirsep.')+$/s', '', $tmp_path );
 			if( strlen($tmp_path) ){
-				$tmp_path = explode( DIRECTORY_SEPARATOR, $this->localize_path( $tmp_path ) );
+				$tmp_path = explode( DIRECTORY_SEPARATOR, $tmp_path );
 			}else{
 				$tmp_path = array();
 			}
+
 			return $tmp_path;
 		};
 
