@@ -74,7 +74,7 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	 * 相対パス解決のテスト
 	 */
 	public function testGetRelatedpath(){
-		return;
+
 		$this->assertEquals(
 			$this->fs->get_relatedpath('/reltest/aaa.txt', '/'),
 			$this->fs->localize_path( './reltest/aaa.txt' )
@@ -94,31 +94,6 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 			$this->fs->get_relatedpath('/reltest/aaa.txt', '/reltest/reltest2/reltest3/'),
 			$this->fs->localize_path( '../../aaa.txt' )
 		);
-
-		// $this->assertEquals(
-		// 	$this->fs->get_relatedpath('./mktest/./aaa.txt', __DIR__),
-		// 	$this->fs->localize_path(__DIR__.'/mktest/aaa.txt')
-		// );
-
-		// $this->assertEquals(
-		// 	$this->fs->get_relatedpath(__DIR__.'/./mktest/../aaa.txt'),
-		// 	$this->fs->localize_path(__DIR__.'/aaa.txt')
-		// );
-
-		// $this->assertEquals(
-		// 	$this->fs->get_relatedpath('C:\\mktest\\aaa.txt'),
-		// 	$this->fs->localize_path('C:/mktest/aaa.txt')
-		// );
-
-		// $this->assertEquals(
-		// 	$this->fs->get_relatedpath('\\\\mktest\\aaa.txt'),
-		// 	$this->fs->localize_path('//mktest/aaa.txt')
-		// );
-
-		// $this->assertEquals(
-		// 	$this->fs->get_relatedpath('../../../mktest/aaa.txt','/aaa/'),
-		// 	$this->fs->localize_path('/mktest/aaa.txt')
-		// );
 
 	}
 

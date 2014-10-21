@@ -478,8 +478,61 @@ class filesystem{
 	 * @return string 相対パス
 	 */
 	public function get_relatedpath( $path, $cd = null ){
-		// 未実装
-		return false;
+		$is_dir = false;
+		if( preg_match( '/(\/|\\\\)+$/s', $path ) ){
+			$is_dir = true;
+		}
+		if( @!strlen( $cd ) ){
+			$cd = realpath('.');
+		}elseif( $this->is_dir($cd) ){
+			$cd = realpath($cd);
+		}elseif( $this->is_file($cd) ){
+			$cd = realpath(dirname($cd));
+		}
+		$normalize = function( $tmp_path ){
+			$preg_dirsep = preg_quote(DIRECTORY_SEPARATOR, '/');
+			if( DIRECTORY_SEPARATOR == '\\' ){
+				$tmp_path = preg_replace( '/^[a-zA-Z]\:/s', '', $tmp_path );
+			}
+			$tmp_path = preg_replace( '/^('.$preg_dirsep.')+/s', '', $tmp_path );
+			$tmp_path = preg_replace( '/('.$preg_dirsep.')+$/s', '', $tmp_path );
+			if( strlen($tmp_path) ){
+				$tmp_path = explode( DIRECTORY_SEPARATOR, $this->localize_path( $tmp_path ) );
+			}else{
+				$tmp_path = array();
+			}
+			return $tmp_path;
+		};
+
+		$cd = $normalize($cd);
+		$path = $normalize($path);
+
+		$rtn = array();
+		while( 1 ){
+			if( !count($cd) || !count($path) ){
+				break;
+			}
+			if( $cd[0] === $path[0] ){
+				array_shift( $cd );
+				array_shift( $path );
+				continue;
+			}
+			break;
+		}
+		if( count($cd) ){
+			foreach($cd as $dirname){
+				array_push( $rtn, '..' );
+			}
+		}else{
+			array_push( $rtn, '.' );
+		}
+		$rtn = array_merge( $rtn, $path );
+		$rtn = implode( DIRECTORY_SEPARATOR, $rtn );
+
+		if( $is_dir ){
+			$rtn .= DIRECTORY_SEPARATOR;
+		}
+		return $rtn;
 	}
 
 	/**
