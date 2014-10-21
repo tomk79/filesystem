@@ -401,6 +401,10 @@ class filesystem{
 	 * @return string 絶対パス
 	 */
 	public function get_realpath( $path, $cd = null ){
+		$is_dir = false;
+		if( preg_match( '/(\/|\\\\)+$/s', $path ) ){
+			$is_dir = true;
+		}
 		$path = $this->localize_path($path);
 		if( is_null($cd) ){ $cd = '.'; }
 		$cd = $this->localize_path($cd);
@@ -427,7 +431,11 @@ class filesystem{
 		$path = $cd.'/./'.$localpath;
 
 		if( file_exists( $prefix.$path ) ){
-			return realpath( $prefix.$path );
+			$rtn = realpath( $prefix.$path );
+			if( $is_dir ){
+				$rtn .= DIRECTORY_SEPARATOR;
+			}
+			return $rtn;
 		}
 
 		$paths = explode( DIRECTORY_SEPARATOR, $path );
@@ -447,7 +455,25 @@ class filesystem{
 			$path .= DIRECTORY_SEPARATOR.$row;
 		}
 
-		return $prefix.$path;
+		$rtn = $prefix.$path;
+		if( $is_dir ){
+			$rtn .= DIRECTORY_SEPARATOR;
+		}
+		return $rtn;
+	}
+
+	/**
+	 * 相対パスを得る。
+	 * 
+	 * パス情報を受け取り、ドットスラッシュから始まる相対絶対パスに変換して返します。
+	 * 
+	 * @param string $path 対象のパス
+	 * @param string $cd カレントディレクトリパス。実在する有効なディレクトリのパス、または絶対パスの表現で指定される必要があります。省略時、カレントディレクトリを自動採用します。
+	 * @return string 相対パス
+	 */
+	public function get_relatedpath( $path, $cd = null ){
+		// 未実装
+		return false;
 	}
 
 	/**

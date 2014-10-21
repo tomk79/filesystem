@@ -25,33 +25,90 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	public function testGetRealpath(){
 		$this->assertEquals(
 			$this->fs->get_realpath('./mktest/aaa.txt'),
-			$this->fs->normalize_path(realpath('.').'/mktest/aaa.txt')
+			$this->fs->localize_path(realpath('.').'/mktest/aaa.txt')
 		);
 
 		$this->assertEquals(
 			$this->fs->get_realpath('./mktest/./aaa.txt', __DIR__),
-			$this->fs->normalize_path(__DIR__.'/mktest/aaa.txt')
+			$this->fs->localize_path(__DIR__.'/mktest/aaa.txt')
 		);
 
 		$this->assertEquals(
 			$this->fs->get_realpath(__DIR__.'/./mktest/../aaa.txt'),
-			$this->fs->normalize_path(__DIR__.'/aaa.txt')
+			$this->fs->localize_path(__DIR__.'/aaa.txt')
 		);
 
 		$this->assertEquals(
 			$this->fs->get_realpath('C:\\mktest\\aaa.txt'),
-			$this->fs->normalize_path('C:/mktest/aaa.txt')
+			$this->fs->localize_path('C:/mktest/aaa.txt')
 		);
 
 		$this->assertEquals(
 			$this->fs->get_realpath('\\\\mktest\\aaa.txt'),
-			$this->fs->normalize_path('//mktest/aaa.txt')
+			$this->fs->localize_path('//mktest/aaa.txt')
 		);
 
 		$this->assertEquals(
 			$this->fs->get_realpath('../../../mktest/aaa.txt','/aaa/'),
-			$this->fs->normalize_path('/mktest/aaa.txt')
+			$this->fs->localize_path('/mktest/aaa.txt')
 		);
+
+		$this->assertEquals(
+			$this->fs->get_realpath('/mktest/','/aaa/'),
+			DIRECTORY_SEPARATOR.'mktest'.DIRECTORY_SEPARATOR
+		);
+
+	}
+
+	/**
+	 * 相対パス解決のテスト
+	 */
+	public function testGetRelatedpath(){
+		return;
+		$this->assertEquals(
+			$this->fs->get_relatedpath('/reltest/aaa.txt', '/'),
+			$this->fs->localize_path( './reltest/aaa.txt' )
+		);
+
+		$this->assertEquals(
+			$this->fs->get_relatedpath('/reltest/aaa.txt', '/reltest/'),
+			$this->fs->localize_path( './aaa.txt' )
+		);
+
+		$this->assertEquals(
+			$this->fs->get_relatedpath('/reltest/aaa.txt', '/reltest/reltest2/'),
+			$this->fs->localize_path( '../aaa.txt' )
+		);
+
+		$this->assertEquals(
+			$this->fs->get_relatedpath('/reltest/aaa.txt', '/reltest/reltest2/reltest3/'),
+			$this->fs->localize_path( '../../aaa.txt' )
+		);
+
+		// $this->assertEquals(
+		// 	$this->fs->get_relatedpath('./mktest/./aaa.txt', __DIR__),
+		// 	$this->fs->localize_path(__DIR__.'/mktest/aaa.txt')
+		// );
+
+		// $this->assertEquals(
+		// 	$this->fs->get_relatedpath(__DIR__.'/./mktest/../aaa.txt'),
+		// 	$this->fs->localize_path(__DIR__.'/aaa.txt')
+		// );
+
+		// $this->assertEquals(
+		// 	$this->fs->get_relatedpath('C:\\mktest\\aaa.txt'),
+		// 	$this->fs->localize_path('C:/mktest/aaa.txt')
+		// );
+
+		// $this->assertEquals(
+		// 	$this->fs->get_relatedpath('\\\\mktest\\aaa.txt'),
+		// 	$this->fs->localize_path('//mktest/aaa.txt')
+		// );
+
+		// $this->assertEquals(
+		// 	$this->fs->get_relatedpath('../../../mktest/aaa.txt','/aaa/'),
+		// 	$this->fs->localize_path('/mktest/aaa.txt')
+		// );
 
 	}
 
