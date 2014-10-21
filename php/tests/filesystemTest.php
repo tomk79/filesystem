@@ -13,7 +13,11 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 
 	public function setup(){
 		mb_internal_encoding('UTF-8');
-		$this->fs = new tomk79\filesystem();
+		$conf = new stdClass;
+		if( DIRECTORY_SEPARATOR == '\\' ){
+			$conf->filesystem_encoding = "Shift_JIS";
+		}
+		$this->fs = new tomk79\filesystem($conf);
 	}
 
 	// ----------------------------------------------------------------------------
@@ -23,6 +27,12 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	 * 絶対パス解決のテスト
 	 */
 	public function testGetRealpath(){
+
+		$this->assertEquals(
+			$this->fs->get_realpath('/'),
+			realpath('/')
+		);
+
 		$this->assertEquals(
 			$this->fs->get_realpath('./mktest/aaa.txt'),
 			$this->fs->localize_path(realpath('.').'/mktest/aaa.txt')

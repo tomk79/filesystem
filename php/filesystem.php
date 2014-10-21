@@ -136,9 +136,13 @@ class filesystem{
 		}
 		$patharray = explode( DIRECTORY_SEPARATOR , $this->localize_path( $this->get_realpath($dirpath) ) );
 		$targetpath = '';
-		foreach( $patharray as $Line ){
+		foreach( $patharray as $idx=>$Line ){
 			if( !strlen( $Line ) || $Line == '.' || $Line == '..' ){ continue; }
-			$targetpath = $targetpath.DIRECTORY_SEPARATOR.$Line;
+			if(!($idx===0 && DIRECTORY_SEPARATOR == '\\' && preg_match('/^[a-zA-Z]\:$/s', $Line))){
+				$targetpath .= DIRECTORY_SEPARATOR;
+			}
+			$targetpath .= $Line;
+
 			// clearstatcache();
 			if( !$this->is_dir( $targetpath ) ){
 				$targetpath = $this->localize_path( $targetpath );
@@ -428,11 +432,11 @@ class filesystem{
 			$cd = null; // 元の指定が絶対パスだったら、カレントディレクトリは関係ないので捨てる。
 		}
 
-		$path = $cd.'/./'.$localpath;
+		$path = $cd.DIRECTORY_SEPARATOR.'.'.DIRECTORY_SEPARATOR.$localpath;
 
 		if( file_exists( $prefix.$path ) ){
 			$rtn = realpath( $prefix.$path );
-			if( $is_dir ){
+			if( $is_dir && $rtn != realpath('/') ){
 				$rtn .= DIRECTORY_SEPARATOR;
 			}
 			return $rtn;
@@ -440,19 +444,21 @@ class filesystem{
 
 		$paths = explode( DIRECTORY_SEPARATOR, $path );
 		$path = '';
-
-		foreach( $paths as $row ){
+		foreach( $paths as $idx=>$row ){
 			if( $row == '' || $row == '.' ){
 				continue;
 			}
 			if( $row == '..' ){
 				$path = dirname($path);
-				if($path == realpath('/')){
+				if($path == DIRECTORY_SEPARATOR){
 					$path = '';
 				}
 				continue;
 			}
-			$path .= DIRECTORY_SEPARATOR.$row;
+			if(!($idx===0 && DIRECTORY_SEPARATOR == '\\' && preg_match('/^[a-zA-Z]\:$/s', $row))){
+				$path .= DIRECTORY_SEPARATOR;
+			}
+			$path .= $row;
 		}
 
 		$rtn = $prefix.$path;
@@ -591,7 +597,7 @@ class filesystem{
 		// 省略時は UTF-8 に変換して返します。
 		if( !is_array( $array ) ){ $array = array(); }
 
-		if( !strlen( $options['charset'] ) ){
+		if( @!strlen( $options['charset'] ) ){
 			$options['charset'] = 'UTF-8';
 		}
 		$RTN = '';
@@ -1001,7 +1007,7 @@ class filesystem{
 	 * @return string 正規化されたパス
 	 */
 	public function normalize_path($path){
-		$path = $this->convert_filesystem_encoding( $path );//文字コードを揃える
+		$path = $this->convert_encoding( $path );//文字コードを揃える
 		$path = preg_replace( '/\\/|\\\\/s', '/', $path );//一旦スラッシュに置き換える。
 		// ボリュームラベルを受け取ったら削除する
 		$path = preg_replace( '/^[A-Z]\\:\\//s', '/', $path );//Windowsのボリュームラベルを削除
@@ -1012,7 +1018,7 @@ class filesystem{
 
 	/**
 	 * パスをOSの標準的な表現に変換する。
-	 * 
+	 *  
 	 * 受け取ったパスを、OSの標準的な表現に変換します。
 	 * - スラッシュとバックスラッシュの違いを吸収し、`DIRECTORY_SEPARATOR` に置き換えます。
 	 * 
