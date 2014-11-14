@@ -169,6 +169,25 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 			__DIR__.'/data/timestamp/file_new.txt',
 			__DIR__.'/data/timestamp/file_old.txt'
 		) );
+		$this->assertFalse( $this->fs->is_newer_a_than_b(
+			__DIR__.'/data/timestamp/file_old.txt',
+			__DIR__.'/data/timestamp/file_new.txt'
+		) );
+
+		// 存在しないファイルを比較した場合
+		$this->assertFalse( $this->fs->is_newer_a_than_b(
+			__DIR__.'/data/timestamp/file_not_exists.txt',
+			__DIR__.'/data/timestamp/file_new.txt'
+		) );
+		$this->assertTrue( $this->fs->is_newer_a_than_b(
+			__DIR__.'/data/timestamp/file_new.txt',
+			__DIR__.'/data/timestamp/file_not_exists.txt'
+		) );
+		$this->assertNull( $this->fs->is_newer_a_than_b(
+			__DIR__.'/data/timestamp/file_not_exists.txt',
+			__DIR__.'/data/timestamp/file_not_exists.txt'
+		) );
+
 	}
 
 

@@ -338,10 +338,20 @@ class filesystem{
 	 * `$path_a` の方が新しかった場合に `true`、
 	 * `$path_b` の方が新しかった場合に `false`、
 	 * 同時だった場合に `null` を返します。
+	 * 
+	 * いずれか一方、または両方のファイルが存在しない場合、次のように振る舞います。
+	 * - 両方のファイルが存在しない場合 = `null`
+	 * - $path_a が存在せず、$path_b は存在する場合 = `false`
+	 * - $path_a が存在し、$path_b は存在しない場合 = `true`
 	 */
 	public function is_newer_a_than_b( $path_a , $path_b ){
 		$path_a = $this->localize_path($path_a);
 		$path_b = $this->localize_path($path_b);
+
+		// 比較できない場合に
+		if(!file_exists($path_a) && !file_exists($path_b)){return null;}
+		if(!file_exists($path_a)){return false;}
+		if(!file_exists($path_b)){return true;}
 
 		$mtime_a = filemtime( $path_a );
 		$mtime_b = filemtime( $path_b );
