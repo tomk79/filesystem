@@ -579,7 +579,7 @@ class filesystem{
 	 */
 	public function trim_extension( $path ){
 		$pathinfo = pathinfo( $path );
-		$RTN = preg_replace( '/\.'.preg_quote( $pathinfo['extension'] , DIRECTORY_SEPARATOR ).'$/' , '' , $path );
+		$RTN = preg_replace( '/\.'.preg_quote( $pathinfo['extension'], '/' ).'$/' , '' , $path );
 		return $RTN;
 	}
 
