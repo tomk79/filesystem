@@ -199,9 +199,9 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	 */
 	public function directoryProvider(){
 		return array(
-			array( __DIR__.'/mktest/testDirectory/'      , 'testDirR/' ) ,
-			array( __DIR__.'/mktest/テストディレクトリ/' , 'testDirR/') ,
-			array( __DIR__.'/mktest\\testDirectoryWin\\' , 'testDirR/') ,
+			array( __DIR__.'/mktest/testDirectory/'      , 'testDirR/', 'filename.txt') ,
+			array( __DIR__.'/mktest/テストディレクトリ/' , 'testDirR/', 'filename.txt') ,
+			array( __DIR__.'/mktest\\testDirectoryWin\\' , 'testDirR/', 'filename.txt') ,
 		);
 	}
 
@@ -211,7 +211,7 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	 * @depends testLs
 	 * @dataProvider directoryProvider
 	 */
-	public function testMkDir( $path, $sub_dir ){
+	public function testMkDir( $path, $sub_dir, $filename ){
 		// ディレクトリを作成
 		clearstatcache();
 		$this->assertTrue( $this->fs->mkdir( $path ) );
@@ -228,7 +228,7 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	 * @depends testMkDir
 	 * @dataProvider directoryProvider
 	 */
-	public function testRmDir( $path, $sub_dir ){
+	public function testRmDir( $path, $sub_dir, $filename ){
 
 		// ディレクトリの存在確認(存在するべき)
 		clearstatcache();
@@ -250,7 +250,7 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	 * @depends testLs
 	 * @dataProvider directoryProvider
 	 */
-	public function testMkDirR( $path, $sub_dir ){
+	public function testMkDirR( $path, $sub_dir, $filename ){
 		// ディレクトリを作成(これは失敗する)
 		clearstatcache();
 		$this->assertFalse( $this->fs->mkdir( $path.$sub_dir ) );
@@ -262,11 +262,13 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 		// ディレクトリを作成(Rをつけると成功する)
 		clearstatcache();
 		$this->assertTrue( $this->fs->mkdir_r( $path.$sub_dir ) );
+		$this->assertTrue( $this->fs->save_file( $path.$sub_dir.$filename, 'testContent' ) );
 
 		// ディレクトリの存在確認(存在するべき)
 		clearstatcache();
 		$this->assertTrue( $this->fs->is_dir($path) );
 		$this->assertTrue( $this->fs->is_dir($path.$sub_dir) );
+		$this->assertTrue( $this->fs->is_file($path.$sub_dir.$filename) );
 	}
 
 	/**
@@ -276,7 +278,7 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 	 * @depends testMkDirR
 	 * @dataProvider directoryProvider
 	 */
-	public function testRmDirR( $path, $sub_dir ){
+	public function testRmDirR( $path, $sub_dir, $filename ){
 
 		// ディレクトリの存在確認(存在するべき)
 		clearstatcache();

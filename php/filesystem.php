@@ -254,11 +254,13 @@ class filesystem{
 			// ディレクトリの処理
 			$filelist = $this->ls($path);
 			foreach( $filelist as $basename ){
-				if( !$this->rmdir_r( $path.DIRECTORY_SEPARATOR.$basename ) ){
+				if( $this->is_file( $path.DIRECTORY_SEPARATOR.$basename ) ){
+					$this->rm( $path.DIRECTORY_SEPARATOR.$basename );
+				}else if( !$this->rmdir_r( $path.DIRECTORY_SEPARATOR.$basename ) ){
 					return false;
 				}
 			}
-			return @rmdir( $path );
+			return $this->rmdir( $path );
 		}
 
 		return false;
