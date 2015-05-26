@@ -512,5 +512,52 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 
 	}
 
+	// ----------------------------------------------------------------------------
+	// その他のテスト
+
+	/**
+	 * 拡張子を抽出するテスト
+	 */
+	public function testGetExtension(){
+
+		$this->assertEquals(
+			$this->fs->get_extension('./test.html'),
+			'html'
+		);
+
+		$this->assertEquals(
+			$this->fs->get_extension('./test.html?abc'),
+			'html'
+		);
+
+		$this->assertEquals(
+			$this->fs->get_extension('./test.html#abc'),
+			'html'
+		);
+
+		$this->assertEquals(
+			$this->fs->get_extension('./test.html?abc#abc'),
+			'html'
+		);
+
+		$this->assertEquals(
+			$this->fs->get_extension('./test.html.md'),
+			'md'
+		);
+
+		$this->assertEquals(
+			$this->fs->get_extension('./test.HtMl'),
+			'HtMl'
+		);
+
+		$this->assertEquals(
+			$this->fs->get_extension('./test.longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglongextension'),
+			'longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglongextension'
+		);
+
+	}
+
+
+
 
 }

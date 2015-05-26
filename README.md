@@ -5,7 +5,7 @@ tomk79/filesystem
 
 Define `tomk79/filesystem` in your `composer.json`.
 
-```
+```json
 {
     "require": {
         "php": ">=5.3.0",
@@ -16,13 +16,13 @@ Define `tomk79/filesystem` in your `composer.json`.
 
 Execute `composer install` command.
 
-```
+```bash
 $ composer install
 ```
 
 Or update command.
 
-```
+```bash
 $ composer update
 ```
 
@@ -31,7 +31,7 @@ $ composer update
 
 #### Basic
 
-```
+```php
 <?php
 require_once('./vendor/autoload.php');
 $fs = new tomk79\filesystem();
@@ -39,7 +39,7 @@ $fs = new tomk79\filesystem();
 
 #### Optional
 
-```
+```php
 <?php
 require_once('./vendor/autoload.php');
 $fs = new tomk79\filesystem(array(
@@ -52,7 +52,7 @@ $fs = new tomk79\filesystem(array(
 
 ## Test
 
-```
+```bash
 $ cd (project directory)
 $ ./vendor/phpunit/phpunit/phpunit php/tests/filesystemTest
 ```
