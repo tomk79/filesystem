@@ -1,13 +1,10 @@
 <?php
 /**
  * test for tomk79\filesystem
- * 
- * $ cd (project dir)
- * $ ./vendor/phpunit/phpunit/phpunit php/tests/filesystemTest
  */
-require_once( __DIR__.'/../filesystem.php' );
+require_once( __DIR__.'/../php/filesystem.php' );
 
-class filesystemTest extends PHPUnit_Framework_TestCase{
+class mainTest extends PHPUnit_Framework_TestCase{
 
 	private $fs;
 
@@ -108,7 +105,7 @@ class filesystemTest extends PHPUnit_Framework_TestCase{
 		// ↓返却値は strnatcmp順(ABC順) でソートされているはず。
 		$i = 0;
 		$this->assertEquals( $ls[$i++], 'data' );
-		$this->assertEquals( $ls[$i++], 'filesystemTest.php' );
+		$this->assertEquals( $ls[$i++], 'mainTest.php' );
 		$this->assertEquals( $ls[$i++], 'mktest' );
 
 		$this->assertFalse( array_search('.', $ls) );
