@@ -507,8 +507,8 @@ class filesystem{
 		}
 		$path = $this->get_realpath($path, $cd);
 
-		$normalize = function( $tmp_path ){
-			$tmp_path = $this->localize_path( $tmp_path );
+		$normalize = function( $tmp_path, $fs ){
+			$tmp_path = $fs->localize_path( $tmp_path );
 			$preg_dirsep = preg_quote(DIRECTORY_SEPARATOR, '/');
 			if( DIRECTORY_SEPARATOR == '\\' ){
 				$tmp_path = preg_replace( '/^[a-zA-Z]\:/s', '', $tmp_path );
@@ -524,8 +524,8 @@ class filesystem{
 			return $tmp_path;
 		};
 
-		$cd = $normalize($cd);
-		$path = $normalize($path);
+		$cd = $normalize($cd, $this);
+		$path = $normalize($path, $this);
 
 		$rtn = array();
 		while( 1 ){
