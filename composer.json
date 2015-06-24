@@ -1,7 +1,7 @@
 {
     "name": "tomk79/filesystem",
-    "description": "file system utility.",
-    "keywords": [],
+    "description": "Simple filesystem utility for PHP.",
+    "keywords": ["filesystem"],
     "license": "MIT",
     "authors": [
         {
