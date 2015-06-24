@@ -89,7 +89,27 @@ class mainTest extends PHPUnit_Framework_TestCase{
 
 		$this->assertEquals(
 			$this->fs->get_relatedpath('/reltest/aaa.txt', '/reltest/reltest2/reltest3/'),
-			$this->fs->localize_path( '../../aaa.txt' )
+			'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'aaa.txt'
+		);
+
+		$this->assertEquals(
+			$this->fs->get_relatedpath('/reltest/./aaa.txt', '/reltest/reltest2/reltest3/'),
+			'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'aaa.txt'
+		);
+
+		$this->assertEquals(
+			$this->fs->get_relatedpath('/reltest/./aaa.txt', '/reltest/reltest2/reltest3'),
+			'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'aaa.txt'
+		);
+
+		$this->assertEquals(
+			$this->fs->get_relatedpath('/reltest/../reltest/aaa.txt', '/reltest/reltest2/reltest3'),
+			'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'aaa.txt'
+		);
+
+		$this->assertEquals(
+			$this->fs->get_relatedpath('../../reltest2/../aaa.txt', '\\reltest\\reltest2\\reltest3'),
+			'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'aaa.txt'
 		);
 
 	}
