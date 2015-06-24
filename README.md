@@ -1,5 +1,34 @@
-tomk79/filesystem
-=================
+# tomk79/filesystem
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>Linux</th>
+      <th>Windows</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>master</th>
+      <td align="center">
+        <a href="https://travis-ci.org/tomk79/filesystem"><img src="https://secure.travis-ci.org/tomk79/filesystem.svg?branch=master"></a>
+      </td>
+      <td align="center">
+        <a href="https://ci.appveyor.com/project/tomk79/filesystem"><img src="https://ci.appveyor.com/api/projects/status/n8r19nmfvqs5ndr8/branch/master?svg=true"></a>
+      </td>
+    </tr>
+    <tr>
+      <th>develop</th>
+      <td align="center">
+        <a href="https://travis-ci.org/tomk79/filesystem"><img src="https://secure.travis-ci.org/tomk79/filesystem.svg?branch=develop"></a>
+      </td>
+      <td align="center">
+        <a href="https://ci.appveyor.com/project/tomk79/filesystem"><img src="https://ci.appveyor.com/api/projects/status/n8r19nmfvqs5ndr8/branch/develop?svg=true"></a>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ## Usage
 
@@ -49,11 +78,34 @@ $fs = new tomk79\filesystem(array(
 ));
 ```
 
+#### API Document
+
+see: docs/index.html
+
 
 ## Test
 
 ```bash
 $ cd (project directory)
-$ ./vendor/phpunit/phpunit/phpunit php/tests/filesystemTest
+$ php ./vendor/phpunit/phpunit/phpunit
 ```
+
+## phpDocumentor
+
+```
+$ composer run-script documentation
+```
+
+
+## License
+
+MIT License
+
+
+## Author
+
+- (C)Tomoya Koyanagi <tomk79@gmail.com>
+- website: <http://www.pxt.jp/>
+- Twitter: @tomk79 <http://twitter.com/tomk79/>
+
 

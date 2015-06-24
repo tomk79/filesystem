@@ -13,13 +13,17 @@
     "scripts":{
         "test": [
             "php ./vendor/phpunit/phpunit/phpunit"
+        ] ,
+        "documentation": [
+            "php ./vendor/phpdocumentor/phpdocumentor/bin/phpdoc --title \"tomk79/filesystem API Document\" -d \"./php/\" -t \"./docs/\""
         ]
     } ,
     "require": {
         "php": ">=5.3.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "4.1.*"
+        "phpunit/phpunit": "4.1.*",
+        "phpdocumentor/phpdocumentor": "2.8.*"
     },
     "autoload": {
         "files": ["php/filesystem.php"]
