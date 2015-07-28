@@ -328,6 +328,61 @@ class mainTest extends PHPUnit_Framework_TestCase{
 	}
 
 	/**
+	 * ファイル名操作のテスト
+	 * @depends testGetRealpath
+	 * @depends testLs
+	 */
+	public function testProcFileName( $path, $content ){
+
+		// パス情報を取得する
+		$this->assertEquals( $this->fs->pathinfo( '/test.files/aaa/test.html.md?a=b&?c=d#test#.anch' ), array(
+			'dirname' => '/test.files/aaa',
+			'basename' => 'test.html.md',
+			'extension' => 'md',
+			'filename' => 'test.html',
+			'query' => '?a=b&?c=d',
+			'hash' => '#test#.anch',
+		) );
+		$this->assertEquals( $this->fs->pathinfo( './test.files/aaa/test.html.MD?a=b&c=d#test.anch' ), array(
+			'dirname' => './test.files/aaa',
+			'basename' => 'test.html.MD',
+			'extension' => 'MD',
+			'filename' => 'test.html',
+			'query' => '?a=b&c=d',
+			'hash' => '#test.anch',
+		) );
+		$this->assertEquals( $this->fs->pathinfo( './test.files/aaa/test' ), array(
+			'dirname' => './test.files/aaa',
+			'basename' => 'test',
+			'extension' => null,
+			'filename' => 'test',
+			'query' => null,
+			'hash' => null,
+		) );
+
+		// ファイル名を取得する
+		$this->assertEquals( $this->fs->get_basename( './aaa/test.html' ), 'test.html' );
+		$this->assertEquals( $this->fs->get_basename( './aaa' ), 'aaa' );
+		$this->assertEquals( $this->fs->get_basename( 'aaa' ), 'aaa' );
+		$this->assertEquals( $this->fs->get_basename( './aaa/' ), 'aaa' );
+
+		// ディレクトリ名を取得する
+		$this->assertEquals( $this->fs->get_dirpath( './aaa/test.html' ), './aaa' );
+		$this->assertEquals( $this->fs->get_dirpath( './aaa/test/' ), './aaa' );
+
+		// 拡張子を削除する
+		$this->assertEquals( $this->fs->trim_extension( './aaa/test.html' ), './aaa/test' );
+		$this->assertEquals( $this->fs->trim_extension( './aaa/test.html.md' ), './aaa/test.html' );
+		$this->assertEquals( $this->fs->trim_extension( './aaa/test' ), './aaa/test' );
+
+		// 拡張子を取得する
+		$this->assertEquals( $this->fs->get_extension( './aaa/test.html' ), 'html' );
+		$this->assertEquals( $this->fs->get_extension( './aaa/test.html.MD' ), 'MD' );
+		$this->assertNull( $this->fs->get_extension( './aaa/test' ) );
+
+	}
+
+	/**
 	 * ファイル作成のテスト
 	 * @depends testGetRealpath
 	 * @depends testLs
