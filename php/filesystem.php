@@ -562,8 +562,6 @@ class filesystem{
 	 * @return array パス情報
 	 */
 	public function pathinfo( $path ){
-		$path = $this->localize_path($path);
-
 		if(strpos($path,'#')!==false){ list($path, $hash) = @explode( '#', $path, 2 ); }
 		if(strpos($path,'?')!==false){ list($path, $query) = @explode( '?', $path, 2 ); }
 
