@@ -144,19 +144,19 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-115257451"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1052962965"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-115257451" class="accordion-body collapse in">
+            <div id="namespace-1052962965" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1391462209"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-994523922"></a>
                                 <a href="../namespaces/tomk79.html" style="margin-left: 30px; padding-left: 0">tomk79</a>
             </div>
-            <div id="namespace-1391462209" class="accordion-body collapse ">
+            <div id="namespace-994523922" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                     
@@ -1835,7 +1835,16 @@
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">normalize_path(string  <span class="argument">$path</span>) : string</pre>
                 <p><em>パスを正規化する。</em></p>
-                <p>受け取ったパスを、スラッシュ区切りの表現に正規化します。</p>
+                <p>受け取ったパスを、スラッシュ区切りの表現に正規化します。
+Windowsのボリュームラベルが付いている場合は削除します。
+URIスキーム(http, https, ftp など) で始まる場合、2つのスラッシュで始まる場合(<code>//www.example.com/abc/</code> など)、これを残して正規化します。</p>
+<ul>
+<li>例： <code>\a\b\c.html</code> → <code>/a/b/c.html</code> バックスラッシュはスラッシュに置き換えられます。</li>
+<li>例： <code>/a/b////c.html</code> → <code>/a/b/c.html</code> 余計なスラッシュはまとめられます。</li>
+<li>例： <code>C:\a\b\c.html</code> → <code>/a/b/c.html</code> ボリュームラベルは削除されます。</li>
+<li>例： <code>http://a/b/c.html</code> → <code>http://a/b/c.html</code> URIスキームは残されます。</li>
+<li>例： <code>//a/b/c.html</code> → <code>//a/b/c.html</code> ドメイン名は残されます。</li>
+</ul>
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
@@ -2080,7 +2089,7 @@
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 24th, 2015 at 14:46.
+                    on September 3rd, 2015 at 16:03.
                 </section>
             </section>
         </section>

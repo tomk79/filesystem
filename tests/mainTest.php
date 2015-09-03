@@ -21,6 +21,63 @@ class mainTest extends PHPUnit_Framework_TestCase{
 	// ユーティリティのテスト
 
 	/**
+	 * パス表現の正規化のテスト
+	 */
+	public function testNormalizePath(){
+
+		$this->assertEquals(
+			$this->fs->get_realpath('/'),
+			realpath('/')
+		);
+
+		$this->assertEquals(
+			$this->fs->normalize_path('.\\aaa\\bbb.html'),
+			'./aaa/bbb.html'
+		);
+
+		$this->assertEquals(
+			$this->fs->normalize_path('.\\aaa/bbb.html'),
+			'./aaa/bbb.html'
+		);
+
+		$this->assertEquals(
+			$this->fs->normalize_path('.\\aaa///bbb.html'),
+			'./aaa/bbb.html'
+		);
+
+		$this->assertEquals(
+			$this->fs->normalize_path('//www.example.com//aaa//bbb.html'),
+			'//www.example.com/aaa/bbb.html'
+		);
+
+		$this->assertEquals(
+			$this->fs->normalize_path('\\\\www.example.com/\\aaa\\/bbb.html'),
+			'//www.example.com/aaa/bbb.html'
+		);
+
+		$this->assertEquals(
+			$this->fs->normalize_path('https://www.example.com/\\/aaa/\\bbb/'),
+			'https://www.example.com/aaa/bbb/'
+		);
+
+		$this->assertEquals(
+			$this->fs->normalize_path('https:\\\\www.example.com/\\/aaa/\\bbb.html'),
+			'https://www.example.com/aaa/bbb.html'
+		);
+
+		$this->assertEquals(
+			$this->fs->normalize_path('C:\\test\\windows\\path\\'),
+			'/test/windows/path/'
+		);
+
+		$this->assertEquals(
+			$this->fs->normalize_path('    C:\\test\\windows\\path\\    '),//前後のスペースは詰められます
+			'/test/windows/path/'
+		);
+
+	}
+
+	/**
 	 * 絶対パス解決のテスト
 	 */
 	public function testGetRealpath(){
