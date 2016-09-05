@@ -71,6 +71,16 @@ class mainTest extends PHPUnit_Framework_TestCase{
 		);
 
 		$this->assertEquals(
+			$this->fs->normalize_path('C:\\\\test\\windows\\path\\'),
+			'//test/windows/path/'
+		);
+
+		$this->assertEquals(
+			$this->fs->normalize_path('C:\\\\\\\\test\\\\\\windows\\path\\'),
+			'//test/windows/path/'
+		);
+
+		$this->assertEquals(
 			$this->fs->normalize_path('    C:\\test\\windows\\path\\    '),//前後のスペースは詰められます
 			'/test/windows/path/'
 		);

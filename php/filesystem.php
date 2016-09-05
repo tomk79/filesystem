@@ -1089,7 +1089,7 @@ class filesystem{
 	 * 受け取ったパスを、スラッシュ区切りの表現に正規化します。
 	 * Windowsのボリュームラベルが付いている場合は削除します。
 	 * URIスキーム(http, https, ftp など) で始まる場合、2つのスラッシュで始まる場合(`//www.example.com/abc/` など)、これを残して正規化します。
-	 * 
+	 *
 	 *  - 例： `\a\b\c.html` → `/a/b/c.html` バックスラッシュはスラッシュに置き換えられます。
 	 *  - 例： `/a/b////c.html` → `/a/b/c.html` 余計なスラッシュはまとめられます。
 	 *  - 例： `C:\a\b\c.html` → `/a/b/c.html` ボリュームラベルは削除されます。
@@ -1103,12 +1103,12 @@ class filesystem{
 		$path = trim($path);
 		$path = $this->convert_encoding( $path );//文字コードを揃える
 		$path = preg_replace( '/\\/|\\\\/s', '/', $path );//バックスラッシュをスラッシュに置き換える。
+		$path = preg_replace( '/^[A-Z]\\:\\//s', '/', $path );//Windowsのボリュームラベルを削除
 		$prefix = '';
 		if( preg_match( '/^((?:[a-zA-Z0-9]+\\:)?\\/)(\\/.*)$/', $path, $matched ) ){
 			$prefix = $matched[1];
 			$path = $matched[2];
 		}
-		$path = preg_replace( '/^[A-Z]\\:\\//s', '/', $path );//Windowsのボリュームラベルを削除
 		$path = preg_replace( '/\\/+/s', '/', $path );//重複するスラッシュを1つにまとめる
 		return $prefix.$path;
 	}
