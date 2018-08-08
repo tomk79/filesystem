@@ -85,7 +85,7 @@ see: docs/index.html
 
 ## Test
 
-```bash
+```
 $ cd (project directory)
 $ php ./vendor/phpunit/phpunit/phpunit
 ```
@@ -95,6 +95,21 @@ $ php ./vendor/phpunit/phpunit/phpunit
 ```
 $ composer run-script documentation
 ```
+
+
+## Change Log
+
+### tomk79/filesystem v1.0.7 (2018-08-08)
+
+- オプションに連想配列を受け取れない不具合を修正。
+
+### tomk79/filesystem v1.0.6 (2016-09-05)
+
+- normalize_path() が、 `C:\\` から始まるパスを `//` から始まるパスに変換するようになった。
+
+### tomk79/filesystem v1.0.5 (2015-09-03)
+
+- `normalize_path()` が、URIスキームを含むパス、ドメイン名を含む2つのスラッシュから始まるパスを処理できるようになった。
 
 
 ## License
