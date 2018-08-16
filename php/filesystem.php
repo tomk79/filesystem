@@ -52,7 +52,7 @@ class filesystem{
 	 */
 	public function is_writable( $path ){
 		$path = $this->localize_path($path);
-		if( !is_file($path) ){
+		if( !$this->is_file($path) ){
 			return @is_writable( dirname($path) );
 		}
 		return @is_writable( $path );
@@ -79,6 +79,17 @@ class filesystem{
 		$path = $this->localize_path($path);
 		return @is_file( $path );
 	}//is_file()
+
+	/**
+	 * シンボリックリンクかどうか調べる。
+	 *
+	 * @param string $path 検証対象のパス
+	 * @return bool ファイルがシンボリックリンクの場合 `true`、存在しない場合、それ以外の場合に `false` を返します。
+	 */
+	public function is_link( $path ){
+		$path = $this->localize_path($path);
+		return @is_link( $path );
+	}//is_link()
 
 	/**
 	 * ディレクトリが存在するかどうか調べる。
@@ -112,7 +123,7 @@ class filesystem{
 	public function mkdir( $dirpath , $perm = null ){
 		$dirpath = $this->localize_path($dirpath);
 
-		if( @is_dir( $dirpath ) ){
+		if( $this->is_dir( $dirpath ) ){
 			// 既にディレクトリがあったら、作成を試みない。
 			$this->chmod( $dirpath , $perm );
 			return true;
@@ -132,10 +143,10 @@ class filesystem{
 	 */
 	public function mkdir_r( $dirpath , $perm = null ){
 		$dirpath = $this->localize_path($dirpath);
-		if( @is_dir( $dirpath ) ){
+		if( $this->is_dir( $dirpath ) ){
 			return true;
 		}
-		if( @is_file( $dirpath ) ){
+		if( $this->is_file( $dirpath ) ){
 			return false;
 		}
 		$patharray = explode( DIRECTORY_SEPARATOR , $this->localize_path( $this->get_realpath($dirpath) ) );
@@ -176,17 +187,19 @@ class filesystem{
 		}
 		$path = @realpath( $path );
 		if( $path === false ){ return false; }
-		if( @is_file( $path ) || @is_link( $path ) ){
-			#	ファイルまたはシンボリックリンクの場合の処理
+		if( $this->is_file( $path ) || $this->is_link( $path ) ){
+			// ファイルまたはシンボリックリンクの場合の処理
 			$result = @unlink( $path );
 			return	$result;
 
-		}elseif( @is_dir( $path ) ){
-			#	ディレクトリの処理
+		}elseif( $this->is_dir( $path ) ){
+			// ディレクトリの処理
 			$flist = $this->ls( $path );
-			foreach ( $flist as $Line ){
-				if( $Line == '.' || $Line == '..' ){ continue; }
-				$this->rm( $path.DIRECTORY_SEPARATOR.$Line );
+			if( is_array($flist) ){
+				foreach ( $flist as $Line ){
+					if( $Line == '.' || $Line == '..' ){ continue; }
+					$this->rm( $path.DIRECTORY_SEPARATOR.$Line );
+				}
 			}
 			$result = @rmdir( $path );
 			return	$result;
@@ -215,12 +228,12 @@ class filesystem{
 		if( $path === false ){
 			return false;
 		}
-		if( @is_file( $path ) || @is_link( $path ) ){
+		if( $this->is_file( $path ) || $this->is_link( $path ) ){
 			// ファイルまたはシンボリックリンクの場合の処理
 			// ディレクトリ以外は削除できません。
 			return false;
 
-		}elseif( @is_dir( $path ) ){
+		}elseif( $this->is_dir( $path ) ){
 			// ディレクトリの処理
 			// rmdir() は再帰的削除を行いません。
 			// 再帰的に削除したい場合は、代わりに `rm()` または `rmdir_r()` を使用します。
@@ -249,19 +262,21 @@ class filesystem{
 		if( $path === false ){
 			return false;
 		}
-		if( @is_file( $path ) || @is_link( $path ) ){
+		if( $this->is_file( $path ) || $this->is_link( $path ) ){
 			// ファイルまたはシンボリックリンクの場合の処理
 			// ディレクトリ以外は削除できません。
 			return false;
 
-		}elseif( @is_dir( $path ) ){
+		}elseif( $this->is_dir( $path ) ){
 			// ディレクトリの処理
 			$filelist = $this->ls($path);
-			foreach( $filelist as $basename ){
-				if( $this->is_file( $path.DIRECTORY_SEPARATOR.$basename ) ){
-					$this->rm( $path.DIRECTORY_SEPARATOR.$basename );
-				}else if( !$this->rmdir_r( $path.DIRECTORY_SEPARATOR.$basename ) ){
-					return false;
+			if( is_array($filelist) ){
+				foreach( $filelist as $basename ){
+					if( $this->is_file( $path.DIRECTORY_SEPARATOR.$basename ) ){
+						$this->rm( $path.DIRECTORY_SEPARATOR.$basename );
+					}else if( !$this->rmdir_r( $path.DIRECTORY_SEPARATOR.$basename ) ){
+						return false;
+					}
 				}
 			}
 			return $this->rmdir( $path );
@@ -295,13 +310,13 @@ class filesystem{
 
 		if( !strlen( $content ) ){
 			// 空白のファイルで上書きしたい場合
-			if( @is_file( $filepath ) ){
+			if( $this->is_file( $filepath ) ){
 				@unlink( $filepath );
 			}
 			@touch( $filepath );
 			$this->chmod( $filepath , $perm );
 			clearstatcache();
-			return @is_file( $filepath );
+			return $this->is_file( $filepath );
 		}
 
 		clearstatcache();
@@ -401,7 +416,7 @@ class filesystem{
 		if( !@file_exists( $original ) ){ return false; }
 		if( !$this->is_writable( $original ) ){ return false; }
 		$dirname = dirname( $newname );
-		if( !@is_dir( $dirname ) ){
+		if( !$this->is_dir( $dirname ) ){
 			if( !$this->mkdir_r( $dirname ) ){
 				return false;
 			}
@@ -721,14 +736,14 @@ class filesystem{
 		$from = $this->localize_path($from);
 		$to   = $this->localize_path($to  );
 
-		if( !@is_file( $from ) ){
+		if( !$this->is_file( $from ) ){
 			return false;
 		}
 		if( !$this->is_readable( $from ) ){
 			return false;
 		}
 
-		if( @is_file( $to ) ){
+		if( $this->is_file( $to ) ){
 			//	まったく同じファイルだった場合は、複製しないでtrueを返す。
 			if( md5_file( $from ) == md5_file( $to ) && filesize( $from ) == filesize( $to ) ){
 				return true;
@@ -755,7 +770,7 @@ class filesystem{
 
 		$result = true;
 
-		if( @is_file( $from ) ){
+		if( $this->is_file( $from ) ){
 			if( $this->mkdir_r( dirname( $to ) ) ){
 				if( !$this->copy( $from , $to , $perm ) ){
 					$result = false;
@@ -763,32 +778,34 @@ class filesystem{
 			}else{
 				$result = false;
 			}
-		}elseif( @is_dir( $from ) ){
-			if( !@is_dir( $to ) ){
+		}elseif( $this->is_dir( $from ) ){
+			if( !$this->is_dir( $to ) ){
 				if( !$this->mkdir_r( $to ) ){
 					$result = false;
 				}
 			}
 			$itemlist = $this->ls( $from );
-			foreach( $itemlist as $Line ){
-				if( $Line == '.' || $Line == '..' ){ continue; }
-				if( @is_dir( $from.DIRECTORY_SEPARATOR.$Line ) ){
-					if( @is_file( $to.DIRECTORY_SEPARATOR.$Line ) ){
-						continue;
-					}elseif( !@is_dir( $to.DIRECTORY_SEPARATOR.$Line ) ){
-						if( !$this->mkdir_r( $to.DIRECTORY_SEPARATOR.$Line ) ){
+			if( is_array($itemlist) ){
+				foreach( $itemlist as $Line ){
+					if( $Line == '.' || $Line == '..' ){ continue; }
+					if( $this->is_dir( $from.DIRECTORY_SEPARATOR.$Line ) ){
+						if( $this->is_file( $to.DIRECTORY_SEPARATOR.$Line ) ){
+							continue;
+						}elseif( !$this->is_dir( $to.DIRECTORY_SEPARATOR.$Line ) ){
+							if( !$this->mkdir_r( $to.DIRECTORY_SEPARATOR.$Line ) ){
+								$result = false;
+							}
+						}
+						if( !$this->copy_r( $from.DIRECTORY_SEPARATOR.$Line , $to.DIRECTORY_SEPARATOR.$Line , $perm ) ){
 							$result = false;
 						}
+						continue;
+					}elseif( $this->is_file( $from.DIRECTORY_SEPARATOR.$Line ) ){
+						if( !$this->copy_r( $from.DIRECTORY_SEPARATOR.$Line , $to.DIRECTORY_SEPARATOR.$Line , $perm ) ){
+							$result = false;
+						}
+						continue;
 					}
-					if( !$this->copy_r( $from.DIRECTORY_SEPARATOR.$Line , $to.DIRECTORY_SEPARATOR.$Line , $perm ) ){
-						$result = false;
-					}
-					continue;
-				}elseif( @is_file( $from.DIRECTORY_SEPARATOR.$Line ) ){
-					if( !$this->copy_r( $from.DIRECTORY_SEPARATOR.$Line , $to.DIRECTORY_SEPARATOR.$Line , $perm ) ){
-						$result = false;
-					}
-					continue;
 				}
 			}
 		}
@@ -807,7 +824,7 @@ class filesystem{
 		$filepath = $this->localize_path($filepath);
 
 		if( is_null( $perm ) ){
-			if( @is_dir( $filepath ) ){
+			if( $this->is_dir( $filepath ) ){
 				$perm = $this->default_permission['dir'];
 			}else{
 				$perm = $this->default_permission['file'];
@@ -848,12 +865,12 @@ class filesystem{
 
 		if( $path === false ){ return false; }
 		if( !@file_exists( $path ) ){ return false; }
-		if( !@is_dir( $path ) ){ return false; }
+		if( !$this->is_dir( $path ) ){ return false; }
 
 		$RTN = array();
 		$dr = @opendir($path);
 		while( ( $ent = readdir( $dr ) ) !== false ){
-			#	CurrentDirとParentDirは含めない
+			// CurrentDirとParentDirは含めない
 			if( $ent == '.' || $ent == '..' ){ continue; }
 			array_push( $RTN , $ent );
 		}
@@ -884,15 +901,17 @@ class filesystem{
 			return true;
 		}
 
-		if( @is_dir( $target ) ){
+		if( $this->is_dir( $target ) ){
 			$flist = $this->ls( $target );
 		}else{
 			return true;
 		}
 
-		foreach ( $flist as $Line ){
-			if( $Line == '.' || $Line == '..' ){ continue; }
-			$this->compare_and_cleanup( $target.DIRECTORY_SEPARATOR.$Line , $comparison.DIRECTORY_SEPARATOR.$Line );
+		if( is_array($flist) ){
+			foreach ( $flist as $Line ){
+				if( $Line == '.' || $Line == '..' ){ continue; }
+				$this->compare_and_cleanup( $target.DIRECTORY_SEPARATOR.$Line , $comparison.DIRECTORY_SEPARATOR.$Line );
+			}
 		}
 
 		return true;
@@ -922,49 +941,49 @@ class filesystem{
 		$path = $this->localize_path($path);
 
 		if( !$this->is_writable( $path ) ){ return false; }
-		if( !@is_dir( $path ) ){ return false; }
-		if( @is_file( $path ) || @is_link( $path ) ){ return false; }
+		if( !$this->is_dir( $path ) ){ return false; }
+		if( $this->is_file( $path ) || $this->is_link( $path ) ){ return false; }
 		$path = @realpath( $path );
 		if( $path === false ){ return false; }
 
-		#--------------------------------------
-		#	次の階層を処理するかどうかのスイッチ
+		// --------------------------------------
+		// 次の階層を処理するかどうかのスイッチ
 		$switch_donext = false;
 		if( is_null( $options['depth'] ) ){
-			#	深さの指定がなければ掘る
+			// 深さの指定がなければ掘る
 			$switch_donext = true;
 		}elseif( !is_int( $options['depth'] ) ){
-			#	指定がnullでも数値でもなければ掘らない
+			// 指定がnullでも数値でもなければ掘らない
 			$switch_donext = false;
 		}elseif( $options['depth'] <= 0 ){
-			#	指定がゼロ以下なら、今回の処理をして終了
+			// 指定がゼロ以下なら、今回の処理をして終了
 			$switch_donext = false;
 		}elseif( $options['depth'] > 0 ){
-			#	指定が正の数(ゼロは含まない)なら、掘る
+			// 指定が正の数(ゼロは含まない)なら、掘る
 			$options['depth'] --;
 			$switch_donext = true;
 		}else{
 			return false;
 		}
-		#	/ 次の階層を処理するかどうかのスイッチ
-		#--------------------------------------
+		// / 次の階層を処理するかどうかのスイッチ
+		// --------------------------------------
 
 		$flist = $this->ls( $path );
 		if( !count( $flist ) ){
-			#	開いたディレクトリの中身が
-			#	"." と ".." のみだった場合
-			#	削除して終了
+			// 開いたディレクトリの中身が
+			// "." と ".." のみだった場合
+			// 削除して終了
 			$result = @rmdir( $path );
 			return	$result;
 		}
 		$alive = false;
 		foreach ( $flist as $Line ){
 			if( $Line == '.' || $Line == '..' ){ continue; }
-			if( @is_link( $path.DIRECTORY_SEPARATOR.$Line ) ){
-				#	シンボリックリンクはシカトする。
-			}elseif( @is_dir( $path.DIRECTORY_SEPARATOR.$Line ) ){
+			if( $this->is_link( $path.DIRECTORY_SEPARATOR.$Line ) ){
+				// シンボリックリンクは無視する。
+			}elseif( $this->is_dir( $path.DIRECTORY_SEPARATOR.$Line ) ){
 				if( $switch_donext ){
-					#	さらに掘れと指令があれば、掘る。
+					// さらに掘れと指令があれば、掘る。
 					$this->remove_empty_dir( $path.DIRECTORY_SEPARATOR.$Line , $options );
 				}
 			}
@@ -1002,19 +1021,19 @@ class filesystem{
 			$dir_b = @$this->convert_filesystem_encoding( $dir_b );
 		}
 
-		if( ( @is_file( $dir_a ) && !@is_file( $dir_b ) ) || ( !@is_file( $dir_a ) && @is_file( $dir_b ) ) ){
+		if( ( $this->is_file( $dir_a ) && !$this->is_file( $dir_b ) ) || ( !$this->is_file( $dir_a ) && $this->is_file( $dir_b ) ) ){
 			return false;
 		}
-		if( ( ( @is_dir( $dir_a ) && !@is_dir( $dir_b ) ) || ( !@is_dir( $dir_a ) && @is_dir( $dir_b ) ) ) && $options['compare_emptydir'] ){
+		if( ( ( $this->is_dir( $dir_a ) && !$this->is_dir( $dir_b ) ) || ( !$this->is_dir( $dir_a ) && $this->is_dir( $dir_b ) ) ) && $options['compare_emptydir'] ){
 			return false;
 		}
 
-		if( @is_file( $dir_a ) && @is_file( $dir_b ) ){
-			#--------------------------------------
-			#	両方ファイルだったら
+		if( $this->is_file( $dir_a ) && $this->is_file( $dir_b ) ){
+			// --------------------------------------
+			// 両方ファイルだったら
 			if( $options['compare_filecontent'] ){
-				#	ファイルの内容も比較する設定の場合、
-				#	それぞれファイルを開いて同じかどうかを比較
+				// ファイルの内容も比較する設定の場合、
+				// それぞれファイルを開いて同じかどうかを比較
 				$filecontent_a = $this->read_file( $dir_a );
 				$filecontent_b = $this->read_file( $dir_b );
 				if( $filecontent_a !== $filecontent_b ){
@@ -1024,21 +1043,21 @@ class filesystem{
 			return true;
 		}
 
-		if( @is_dir( $dir_a ) || @is_dir( $dir_b ) ){
-			#--------------------------------------
-			#	両方ディレクトリだったら
+		if( $this->is_dir( $dir_a ) || $this->is_dir( $dir_b ) ){
+			// --------------------------------------
+			// 両方ディレクトリだったら
 			$contlist_a = $this->ls( $dir_a );
 			$contlist_b = $this->ls( $dir_b );
 
 			if( $options['compare_emptydir'] && $contlist_a !== $contlist_b ){
-				#	空っぽのディレクトリも厳密に評価する設定で、
-				#	ディレクトリ内の要素配列の内容が異なれば、false。
+				// 空っぽのディレクトリも厳密に評価する設定で、
+				// ディレクトリ内の要素配列の内容が異なれば、false。
 				return false;
 			}
 
 			$done = array();
 			foreach( $contlist_a as $Line ){
-				#	Aをチェック
+				// Aをチェック
 				if( $Line == '..' || $Line == '.' ){ continue; }
 				if( !$this->compare_dir( $dir_a.DIRECTORY_SEPARATOR.$Line , $dir_b.DIRECTORY_SEPARATOR.$Line , $options ) ){
 					return false;
@@ -1047,7 +1066,7 @@ class filesystem{
 			}
 
 			foreach( $contlist_b as $Line ){
-				#	Aに含まれなかったBをチェック
+				// Aに含まれなかったBをチェック
 				if( $done[$Line] ){ continue; }
 				if( $Line == '..' || $Line == '.' ){ continue; }
 				if( !$this->compare_dir( $dir_a.DIRECTORY_SEPARATOR.$Line , $dir_b.DIRECTORY_SEPARATOR.$Line , $options ) ){

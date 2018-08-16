@@ -99,6 +99,11 @@ $ composer run-script documentation
 
 ## Change Log
 
+### tomk79/filesystem v1.0.8 (2018-08-??)
+
+- `is_link()` を追加。
+- その他、内部処理の調整。
+
 ### tomk79/filesystem v1.0.7 (2018-08-08)
 
 - オプションに連想配列を受け取れない不具合を修正。
