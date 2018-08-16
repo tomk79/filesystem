@@ -3,7 +3,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
     <meta charset="utf-8"/>
-    <title>tomk79/filesystem API Document</title>
+    <title>tomk79/filesystem v1.0.8 API Document</title>
     <meta name="author" content=""/>
     <meta name="description" content=""/>
 
@@ -83,7 +83,7 @@
             <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
                 <i class="icon-ellipsis-vertical"></i>
             </a>
-            <a class="brand" href="../index.html">tomk79/filesystem API Document</a>
+            <a class="brand" href="../index.html">tomk79/filesystem v1.0.8 API Document</a>
 
             <div class="nav-collapse">
                 <ul class="nav pull-right">
@@ -144,19 +144,19 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1052962965"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1128685845"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1052962965" class="accordion-body collapse in">
+            <div id="namespace-1128685845" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-994523922"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-208263576"></a>
                                 <a href="../namespaces/tomk79.html" style="margin-left: 30px; padding-left: 0">tomk79</a>
             </div>
-            <div id="namespace-994523922" class="accordion-body collapse ">
+            <div id="namespace-208263576" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                     
@@ -211,6 +211,7 @@
                                                                     <a href="../classes/tomk79.filesystem.html#method_is_writable" class="">is_writable()</a><br />
                                                                     <a href="../classes/tomk79.filesystem.html#method_is_readable" class="">is_readable()</a><br />
                                                                     <a href="../classes/tomk79.filesystem.html#method_is_file" class="">is_file()</a><br />
+                                                                    <a href="../classes/tomk79.filesystem.html#method_is_link" class="">is_link()</a><br />
                                                                     <a href="../classes/tomk79.filesystem.html#method_is_dir" class="">is_dir()</a><br />
                                                                     <a href="../classes/tomk79.filesystem.html#method_file_exists" class="">file_exists()</a><br />
                                                                     <a href="../classes/tomk79.filesystem.html#method_mkdir" class="">mkdir()</a><br />
@@ -507,6 +508,43 @@
                                     <h4>Returns</h4>
                     boolean
                                             &mdash; <p>ファイルが存在する場合 <code>true</code>、存在しない場合、またはディレクトリが存在する場合に <code>false</code> を返します。</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_is_link" name="method_is_link" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">is_link()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">is_link(string  <span class="argument">$path</span>) : boolean</pre>
+                <p><em>シンボリックリンクかどうか調べる。</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$path </td>
+                                <td><p>検証対象のパス</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>ファイルがシンボリックリンクの場合 <code>true</code>、存在しない場合、それ以外の場合に <code>false</code> を返します。</p>
                                     				
                             </article>
         </div>
@@ -2089,7 +2127,7 @@ URIスキーム(http, https, ftp など) で始まる場合、2つのスラッ�
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on September 3rd, 2015 at 16:03.
+                    on August 16th, 2018 at 10:54.
                 </section>
             </section>
         </section>

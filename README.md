@@ -99,7 +99,7 @@ $ composer run-script documentation
 
 ## Change Log
 
-### tomk79/filesystem v1.0.8 (2018-08-??)
+### tomk79/filesystem v1.0.8 (2018-08-16)
 
 - `is_link()` を追加。
 - その他、内部処理の調整。
