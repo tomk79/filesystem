@@ -21,8 +21,11 @@ branches:
     - master
     - develop
 
-# fix lineendings in Windows
+# initialize
 init:
+  - ps: Set-WinSystemLocale ja-JP
+  - ps: Start-Sleep -s 5
+  - ps: Restart-Computer
   - git config --global core.autocrlf input
   - git config --global user.name "Tomoya Koyanagi"
   - git config --global user.email tomk79@gmail.com
