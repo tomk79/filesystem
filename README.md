@@ -99,6 +99,10 @@ $ composer run-script documentation
 
 ## Change Log
 
+### tomk79/filesystem v1.0.9 (リリース日未定)
+
+- `chmod_r()` を追加。
+
 ### tomk79/filesystem v1.0.8 (2018-08-16)
 
 - `is_link()` を追加。
@@ -125,7 +129,7 @@ MIT License
 ## Author
 
 - (C)Tomoya Koyanagi <tomk79@gmail.com>
-- website: <http://www.pxt.jp/>
-- Twitter: @tomk79 <http://twitter.com/tomk79/>
+- website: <https://www.pxt.jp/>
+- Twitter: @tomk79 <https://twitter.com/tomk79/>
 
 

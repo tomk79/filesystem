@@ -811,16 +811,16 @@ class filesystem{
 		}
 
 		return $result;
-	}//copy_r()
+	} // copy_r()
 
 	/**
 	 * パーミッションを変更する。
 	 *
 	 * @param string $filepath 対象のパス
-	 * @param int $perm 保存するファイルに与えるパーミッション
+	 * @param int $perm 与えるパーミッション
 	 * @return bool 成功時に `true`、失敗時に `false` を返します。
 	 */
-	public function chmod( $filepath , $perm = null ){
+	public function chmod( $filepath, $perm = null ){
 		$filepath = $this->localize_path($filepath);
 
 		if( is_null( $perm ) ){
@@ -834,7 +834,60 @@ class filesystem{
 			$perm = 0775; // コンフィグに設定モレがあった場合
 		}
 		return @chmod( $filepath , $perm );
-	}//chmod()
+	} // chmod()
+
+	/**
+	 * パーミッションを変更する。
+	 *
+	 * `$perm_file` と `$perm_dir` が省略された場合は、代わりに初期化時に登録されたデフォルトのパーミッションが与えられます。
+	 *
+	 * 第2引数 `$perm_dir` が省略され、最初の引数 `$perm_file` だけが与えられた場合は、 ファイルとディレクトリの両方に `$perm_file` が適用されます。
+	 *
+	 * @param string $filepath 対象のパス
+	 * @param int $perm_file ファイルに与えるパーミッション (省略可)
+	 * @param int $perm_dir ディレクトリに与えるパーミッション (省略可)
+	 * @return bool 成功時に `true`、失敗時に `false` を返します。
+	 */
+	public function chmod_r( $filepath, $perm_file = null, $perm_dir = null ){
+		$filepath = $this->localize_path($filepath);
+		if( !is_null( $perm_file ) && is_null($perm_dir) ){
+			// パーミッション設定値が1つだけ与えられた場合には、
+			// ファイルにもディレクトリにも適用する。
+			$perm_dir = $perm_file;
+		}
+
+		$result = true;
+
+		if( $this->is_file( $filepath ) ){
+			if( !$this->chmod( $filepath, $perm_file ) ){
+				$result = false;
+			}
+		}elseif( $this->is_dir( $filepath ) ){
+			$itemlist = $this->ls( $filepath );
+			if( is_array($itemlist) ){
+				foreach( $itemlist as $Line ){
+					if( $Line == '.' || $Line == '..' ){ continue; }
+					if( $this->is_dir( $filepath.DIRECTORY_SEPARATOR.$Line ) ){
+						if( !$this->chmod( $filepath.DIRECTORY_SEPARATOR.$Line, $perm_dir ) ){
+							$result = false;
+						}
+						if( !$this->chmod_r( $filepath.DIRECTORY_SEPARATOR.$Line, $perm_file, $perm_dir ) ){
+							$result = false;
+						}
+						continue;
+					}elseif( $this->is_file( $filepath.DIRECTORY_SEPARATOR.$Line ) ){
+						if( !$this->chmod( $filepath.DIRECTORY_SEPARATOR.$Line, $perm_file ) ){
+							$result = false;
+						}
+						continue;
+					}
+				}
+			}
+		}
+
+		return $result;
+	} // chmod_r()
+
 
 	/**
 	 * パーミッション情報を調べ、3桁の数字で返す。

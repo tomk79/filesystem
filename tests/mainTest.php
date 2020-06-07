@@ -579,6 +579,23 @@ class mainTest extends PHPUnit_Framework_TestCase{
 
 	}
 
+	// ----------------------------------------------------------------------------
+	// パーミッション関連のテスト
+
+	/**
+	 * chmodするテスト
+	 */
+	public function testChmod(){
+		$this->fs->mkdir( __DIR__.'/mktest/testdir/' );
+		$this->fs->mkdir( __DIR__.'/mktest/testdir/testdir2/' );
+		$this->fs->save_file( __DIR__.'/mktest/testdir/testdir2/test1.txt', 'test1' );
+		$this->fs->save_file( __DIR__.'/mktest/testdir/testdir2/test2.txt', 'test2' );
+		$this->assertTrue( $this->fs->chmod( __DIR__.'/mktest/testdir/testdir2/', 0776 ) );
+		$this->assertTrue( $this->fs->chmod( __DIR__.'/mktest/testdir/testdir2/test1.txt', 0776 ) );
+		$this->assertTrue( $this->fs->chmod_r( __DIR__.'/mktest/testdir/', 0770 ) );
+		$this->assertTrue( $this->fs->rm( __DIR__.'/mktest/testdir/' ) );
+	}
+
 
 	// ----------------------------------------------------------------------------
 	// CSVファイル操作のテスト
