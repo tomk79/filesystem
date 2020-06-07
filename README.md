@@ -99,7 +99,7 @@ $ composer run-script documentation
 
 ## Change Log
 
-### tomk79/filesystem v1.0.9 (リリース日未定)
+### tomk79/filesystem v1.0.9 (2020-06-07)
 
 - `chmod_r()` を追加。
 
@@ -131,5 +131,3 @@ MIT License
 - (C)Tomoya Koyanagi <tomk79@gmail.com>
 - website: <https://www.pxt.jp/>
 - Twitter: @tomk79 <https://twitter.com/tomk79/>
-
-
