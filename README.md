@@ -99,7 +99,7 @@ $ composer run-script documentation
 
 ## Change Log
 
-### tomk79/filesystem v1.0.9 (リリース日未定)
+### tomk79/filesystem v1.0.10 (2020-08-20)
 
 - `rm()` が、シンボリックリンクを削除できない不具合を修正。
 
