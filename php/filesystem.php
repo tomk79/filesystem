@@ -185,7 +185,7 @@ class filesystem{
 		if( !$this->is_writable( $path ) ){
 			return false;
 		}
-		$path = @realpath( $path );
+		$path = $this->get_realpath( $path );
 		if( $path === false ){ return false; }
 		if( $this->is_file( $path ) || $this->is_link( $path ) ){
 			// ファイルまたはシンボリックリンクの場合の処理
