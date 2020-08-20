@@ -181,12 +181,11 @@ class filesystem{
 	 */
 	public function rm( $path ){
 		$path = $this->localize_path($path);
+		clearstatcache();
 
 		if( !$this->is_writable( $path ) ){
 			return false;
 		}
-		$path = $this->get_realpath( $path );
-		if( $path === false ){ return false; }
 		if( $this->is_file( $path ) || $this->is_link( $path ) ){
 			// ファイルまたはシンボリックリンクの場合の処理
 			$result = @unlink( $path );
