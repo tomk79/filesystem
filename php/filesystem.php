@@ -664,6 +664,16 @@ class filesystem{
 			return false;
 		}
 
+		// Normalize $options
+		if( !is_array($options) ){
+			$options = array();
+		}
+		if( !array_key_exists( 'charset', $options ) ){ $options['charset'] = null; }
+		if( !array_key_exists( 'delimiter', $options ) ){ $options['delimiter'] = null; }
+		if( !array_key_exists( 'enclosure', $options ) ){ $options['enclosure'] = null; }
+		if( !array_key_exists( 'size', $options ) ){ $options['size'] = null; }
+		if( !array_key_exists( 'charset', $options ) ){ $options['charset'] = null; }
+
 		if( !strlen( @$options['delimiter'] ) )    { $options['delimiter'] = ','; }
 		if( !strlen( @$options['enclosure'] ) )    { $options['enclosure'] = '"'; }
 		if( !strlen( @$options['size'] ) )         { $options['size'] = 10000; }
@@ -683,7 +693,7 @@ class filesystem{
 		}
 		fclose($fp);
 		return $RTN;
-	}//read_csv()
+	} // read_csv()
 
 	/**
 	 * 配列をCSV形式に変換する。
@@ -700,9 +710,17 @@ class filesystem{
 		// 省略時は UTF-8 に変換して返します。
 		if( !is_array( $array ) ){ $array = array(); }
 
-		if( @!strlen( $options['charset'] ) ){
+		// Normalize $options
+		if( !is_array($options) ){
+			$options = array();
+		}
+		if( !array_key_exists( 'charset', $options ) ){
+			$options['charset'] = null;
+		}
+		if( !strlen( $options['charset'] ) ){
 			$options['charset'] = 'UTF-8';
 		}
+
 		$RTN = '';
 		foreach( $array as $Line ){
 			if( is_null( $Line ) ){ continue; }
@@ -721,7 +739,7 @@ class filesystem{
 			$RTN .= "\n";
 		}
 		return $RTN;
-	}//mk_csv()
+	} // mk_csv()
 
 	/**
 	 * ファイルを複製する。
@@ -1001,6 +1019,14 @@ class filesystem{
 		$path = @realpath( $path );
 		if( $path === false ){ return false; }
 
+		// Normalize $options
+		if( !is_array($options) ){
+			$options = array();
+		}
+		if( !array_key_exists( 'depth', $options ) ){
+			$options['depth'] = null;
+		}
+
 		// --------------------------------------
 		// 次の階層を処理するかどうかのスイッチ
 		$switch_donext = false;
@@ -1081,6 +1107,17 @@ class filesystem{
 		}
 		if( ( ( $this->is_dir( $dir_a ) && !$this->is_dir( $dir_b ) ) || ( !$this->is_dir( $dir_a ) && $this->is_dir( $dir_b ) ) ) && $options['compare_emptydir'] ){
 			return false;
+		}
+
+		// Normalize $options
+		if( !is_array($options) ){
+			$options = array();
+		}
+		if( !array_key_exists( 'compare_filecontent', $options ) ){
+			$options['compare_filecontent'] = null;
+		}
+		if( !array_key_exists( 'compare_emptydir', $options ) ){
+			$options['compare_emptydir'] = null;
 		}
 
 		if( $this->is_file( $dir_a ) && $this->is_file( $dir_b ) ){

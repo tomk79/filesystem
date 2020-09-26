@@ -30,30 +30,14 @@
   </tbody>
 </table>
 
-## Usage
 
-Define `tomk79/filesystem` in your `composer.json`.
 
-```json
-{
-    "require": {
-        "php": ">=5.3.0",
-        "tomk79/filesystem": "1.*"
-    }
-}
-```
-
-Execute `composer install` command.
+## Install
 
 ```bash
-$ composer install
+$ composer require tomk79/filesystem;
 ```
 
-Or update command.
-
-```bash
-$ composer update
-```
 
 
 ### PHP
@@ -98,6 +82,10 @@ $ composer run-script documentation
 
 
 ## Change Log
+
+### tomk79/filesystem v1.0.11 (リリース日未定)
+
+- 細かい不具合を修正。
 
 ### tomk79/filesystem v1.0.10 (2020-08-20)
 
