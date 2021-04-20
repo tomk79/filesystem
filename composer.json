@@ -26,6 +26,10 @@
         "phpdocumentor/phpdocumentor": "^2.8.0"
     },
     "autoload": {
-        "files": ["php/filesystem.php"]
+        "psr-4": {
+            "tomk79\\": [
+                "php"
+            ]
+        }
     }
 }
