@@ -53,10 +53,10 @@ class filesystem{
 	public function is_writable( $path ){
 		$path = $this->localize_path($path);
 		if( !$this->is_file($path) ){
-			return @is_writable( dirname($path) );
+			return is_writable( dirname($path) );
 		}
-		return @is_writable( $path );
-	}//is_writable()
+		return is_writable( $path );
+	} // is_writable()
 
 	/**
 	 * 読み込んでよいアイテムか検証する。
@@ -66,7 +66,7 @@ class filesystem{
 	 */
 	public function is_readable( $path ){
 		$path = $this->localize_path($path);
-		return @is_readable( $path );
+		return is_readable( $path );
 	}//is_readable()
 
 	/**
@@ -77,7 +77,7 @@ class filesystem{
 	 */
 	public function is_file( $path ){
 		$path = $this->localize_path($path);
-		return @is_file( $path );
+		return is_file( $path );
 	}//is_file()
 
 	/**
@@ -88,7 +88,7 @@ class filesystem{
 	 */
 	public function is_link( $path ){
 		$path = $this->localize_path($path);
-		return @is_link( $path );
+		return is_link( $path );
 	}//is_link()
 
 	/**
@@ -99,7 +99,7 @@ class filesystem{
 	 */
 	public function is_dir( $path ){
 		$path = $this->localize_path($path);
-		return @is_dir( $path );
+		return is_dir( $path );
 	}//is_dir()
 
 	/**
@@ -110,8 +110,8 @@ class filesystem{
 	 */
 	public function file_exists( $path ){
 		$path = $this->localize_path($path);
-		return @file_exists( $path );
-	}//file_exists()
+		return file_exists( $path );
+	} // file_exists()
 
 	/**
 	 * ディレクトリを作成する。
@@ -188,7 +188,7 @@ class filesystem{
 		}
 		if( $this->is_file( $path ) || $this->is_link( $path ) ){
 			// ファイルまたはシンボリックリンクの場合の処理
-			$result = @unlink( $path );
+			$result = unlink( $path );
 			return	$result;
 
 		}elseif( $this->is_dir( $path ) ){
@@ -200,7 +200,7 @@ class filesystem{
 					$this->rm( $path.DIRECTORY_SEPARATOR.$Line );
 				}
 			}
-			$result = @rmdir( $path );
+			$result = rmdir( $path );
 			return	$result;
 
 		}
@@ -394,9 +394,9 @@ class filesystem{
 		$original = $this->localize_path($original);
 		$newname  = $this->localize_path($newname );
 
-		if( !@file_exists( $original ) ){ return false; }
+		if( !file_exists( $original ) ){ return false; }
 		if( !$this->is_writable( $original ) ){ return false; }
-		return @rename( $original , $newname );
+		return rename( $original , $newname );
 	}//rename()
 
 	/**
@@ -412,7 +412,7 @@ class filesystem{
 		$original = $this->localize_path($original);
 		$newname  = $this->localize_path($newname );
 
-		if( !@file_exists( $original ) ){ return false; }
+		if( !file_exists( $original ) ){ return false; }
 		if( !$this->is_writable( $original ) ){ return false; }
 		$dirname = dirname( $newname );
 		if( !$this->is_dir( $dirname ) ){
@@ -420,8 +420,8 @@ class filesystem{
 				return false;
 			}
 		}
-		return @rename( $original , $newname );
-	}//rename_f()
+		return rename( $original , $newname );
+	} // rename_f()
 
 	/**
 	 * 絶対パスを得る。
@@ -516,7 +516,7 @@ class filesystem{
 		if( preg_match( '/(\/|\\\\)+$/s', $path ) ){
 			$is_dir = true;
 		}
-		if( @!strlen( $cd ) ){
+		if( !strlen( $cd ) ){
 			$cd = realpath('.');
 		}elseif( $this->is_dir($cd) ){
 			$cd = realpath($cd);
@@ -580,14 +580,14 @@ class filesystem{
 	 * @return array パス情報
 	 */
 	public function pathinfo( $path ){
-		if(strpos($path,'#')!==false){ list($path, $hash) = @explode( '#', $path, 2 ); }
-		if(strpos($path,'?')!==false){ list($path, $query) = @explode( '?', $path, 2 ); }
+		if(strpos($path,'#')!==false){ list($path, $hash) = explode( '#', $path, 2 ); }
+		if(strpos($path,'?')!==false){ list($path, $query) = explode( '?', $path, 2 ); }
 
 		$pathinfo = pathinfo( $path );
 		$pathinfo['filename'] = $this->trim_extension( $pathinfo['basename'] );
 		$pathinfo['extension'] = $this->get_extension( $pathinfo['basename'] );
-		$pathinfo['query'] = (@strlen($query) ? '?'.$query : null);
-		$pathinfo['hash'] = (@strlen($hash) ? '#'.$hash : null);
+		$pathinfo['query'] = (isset($query)&&strlen($query) ? '?'.$query : null);
+		$pathinfo['hash'] = (isset($hash)&&strlen($hash) ? '#'.$hash : null);
 		return $pathinfo;
 	}
 
@@ -611,7 +611,10 @@ class filesystem{
 	 */
 	public function trim_extension( $path ){
 		$pathinfo = pathinfo( $path );
-		$RTN = preg_replace( '/\.'.preg_quote( @$pathinfo['extension'], '/' ).'$/' , '' , $path );
+		if( !array_key_exists('extension', $pathinfo) ){
+			$pathinfo['extension'] = '';
+		}
+		$RTN = preg_replace( '/\.'.preg_quote( $pathinfo['extension'], '/' ).'$/' , '' , $path );
 		return $RTN;
 	}
 
@@ -842,6 +845,9 @@ class filesystem{
 	 */
 	public function chmod( $filepath, $perm = null ){
 		$filepath = $this->localize_path($filepath);
+		if( !file_exists($filepath) ){
+			return;
+		}
 
 		if( is_null( $perm ) ){
 			if( $this->is_dir( $filepath ) ){
@@ -853,7 +859,7 @@ class filesystem{
 		if( is_null( $perm ) ){
 			$perm = 0775; // コンフィグに設定モレがあった場合
 		}
-		return @chmod( $filepath , $perm );
+		return chmod( $filepath , $perm );
 	} // chmod()
 
 	/**
@@ -918,7 +924,7 @@ class filesystem{
 	public function get_permission( $path ){
 		$path = $this->localize_path($path);
 
-		if( !@file_exists( $path ) ){
+		if( !file_exists( $path ) ){
 			return false;
 		}
 		$perm = rtrim( sprintf( "%o\n" , fileperms( $path ) ) );
@@ -937,7 +943,7 @@ class filesystem{
 		$path = $this->localize_path($path);
 
 		if( $path === false ){ return false; }
-		if( !@file_exists( $path ) ){ return false; }
+		if( !file_exists( $path ) ){ return false; }
 		if( !$this->is_dir( $path ) ){ return false; }
 
 		$RTN = array();
@@ -969,7 +975,7 @@ class filesystem{
 		$target = $this->localize_path($target);
 		$comparison = $this->localize_path($comparison);
 
-		if( !@file_exists( $comparison ) && @file_exists( $target ) ){
+		if( !file_exists( $comparison ) && file_exists( $target ) ){
 			$this->rm( $target );
 			return true;
 		}
@@ -1068,7 +1074,7 @@ class filesystem{
 					$this->remove_empty_dir( $path.DIRECTORY_SEPARATOR.$Line , $options );
 				}
 			}
-			if( @file_exists( $path.DIRECTORY_SEPARATOR.$Line ) ){
+			if( file_exists( $path.DIRECTORY_SEPARATOR.$Line ) ){
 				$alive = true;
 			}
 		}
