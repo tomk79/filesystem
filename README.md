@@ -83,7 +83,7 @@ $ composer run-script documentation
 
 ## Change Log
 
-### tomk79/filesystem v1.0.12 (リリース日未定)
+### tomk79/filesystem v1.0.12 (2021-04-23)
 
 - 内部コードの細かい修正。
 
