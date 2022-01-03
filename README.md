@@ -83,6 +83,10 @@ $ composer run-script documentation
 
 ## Change Log
 
+### tomk79/filesystem v1.1.0 (リリース日未定)
+
+- サポートするPHPのバージョンを `>=7.3.0` に変更。
+
 ### tomk79/filesystem v1.0.12 (2021-04-23)
 
 - 内部コードの細かい修正。
