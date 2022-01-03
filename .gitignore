@@ -3,3 +3,4 @@ Thumbs.db
 composer.lock
 /vendor/
 .phpdoc
+.phpunit.result.cache

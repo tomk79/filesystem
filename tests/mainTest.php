@@ -2,13 +2,11 @@
 /**
  * test for tomk79\filesystem
  */
-require_once( __DIR__.'/../php/filesystem.php' );
-
-class mainTest extends PHPUnit_Framework_TestCase{
+class mainTest extends PHPUnit\Framework\TestCase{
 
 	private $fs;
 
-	public function setup(){
+	public function setUp() : void{
 		mb_internal_encoding('UTF-8');
 		$conf = new stdClass;
 		if( DIRECTORY_SEPARATOR == '\\' ){
