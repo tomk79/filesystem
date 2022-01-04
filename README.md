@@ -83,6 +83,10 @@ $ composer run-script documentation
 
 ## Change Log
 
+### tomk79/filesystem v1.1.1 (リリース日未定)
+
+- PHP 8.1 で起きる不具合を修正。
+
 ### tomk79/filesystem v1.1.0 (2022-01-04)
 
 - サポートするPHPのバージョンを `>=7.3.0` に変更。

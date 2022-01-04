@@ -153,7 +153,7 @@ class filesystem{
 		$targetpath = '';
 		foreach( $patharray as $idx=>$Line ){
 			if( !strlen( ''.$Line ) || $Line == '.' || $Line == '..' ){ continue; }
-			if(!($idx===0 && DIRECTORY_SEPARATOR == '\\' && preg_match('/^[a-zA-Z]\:$/s', $Line))){
+			if(!($idx===0 && DIRECTORY_SEPARATOR == '\\' && preg_match('/^[a-zA-Z]\:$/s', ''.$Line))){
 				$targetpath .= DIRECTORY_SEPARATOR;
 			}
 			$targetpath .= $Line;
@@ -438,7 +438,7 @@ class filesystem{
 	 */
 	public function get_realpath( $path, $cd = '.' ){
 		$is_dir = false;
-		if( preg_match( '/(\/|\\\\)+$/s', $path ) ){
+		if( preg_match( '/(\/|\\\\)+$/s', ''.$path ) ){
 			$is_dir = true;
 		}
 		$path = $this->localize_path($path);
@@ -448,7 +448,7 @@ class filesystem{
 
 		if( $this->is_dir($cd) ){
 			$cd = realpath($cd);
-		}elseif( !preg_match('/^((?:[A-Za-z]\\:'.$preg_dirsep.')|'.$preg_dirsep.'{1,2})(.*?)$/', $cd) ){
+		}elseif( !preg_match('/^((?:[A-Za-z]\\:'.$preg_dirsep.')|'.$preg_dirsep.'{1,2})(.*?)$/', ''.$cd) ){
 			$cd = false;
 		}
 		if( $cd === false ){
@@ -457,7 +457,7 @@ class filesystem{
 
 		$prefix = '';
 		$localpath = $path;
-		if( preg_match('/^((?:[A-Za-z]\\:'.$preg_dirsep.')|'.$preg_dirsep.'{1,2})(.*?)$/', $path, $matched) ){
+		if( preg_match('/^((?:[A-Za-z]\\:'.$preg_dirsep.')|'.$preg_dirsep.'{1,2})(.*?)$/', ''.$path, $matched) ){
 			// もともと絶対パスの指定か調べる
 			$prefix = preg_replace('/'.$preg_dirsep.'$/', '', $matched[1]);
 			$localpath = $matched[2];
@@ -487,7 +487,7 @@ class filesystem{
 				}
 				continue;
 			}
-			if(!($idx===0 && DIRECTORY_SEPARATOR == '\\' && preg_match('/^[a-zA-Z]\:$/s', $row))){
+			if(!($idx===0 && DIRECTORY_SEPARATOR == '\\' && preg_match('/^[a-zA-Z]\:$/s', ''.$row))){
 				$path .= DIRECTORY_SEPARATOR;
 			}
 			$path .= $row;
@@ -513,7 +513,7 @@ class filesystem{
 	 */
 	public function get_relatedpath( $path, $cd = '.' ){
 		$is_dir = false;
-		if( preg_match( '/(\/|\\\\)+$/s', $path ) ){
+		if( preg_match( '/(\/|\\\\)+$/s', ''.$path ) ){
 			$is_dir = true;
 		}
 		if( !strlen( ''.$cd ) ){
@@ -529,10 +529,10 @@ class filesystem{
 			$tmp_path = $fs->localize_path( $tmp_path );
 			$preg_dirsep = preg_quote(DIRECTORY_SEPARATOR, '/');
 			if( DIRECTORY_SEPARATOR == '\\' ){
-				$tmp_path = preg_replace( '/^[a-zA-Z]\:/s', '', $tmp_path );
+				$tmp_path = preg_replace( '/^[a-zA-Z]\:/s', '', ''.$tmp_path );
 			}
-			$tmp_path = preg_replace( '/^('.$preg_dirsep.')+/s', '', $tmp_path );
-			$tmp_path = preg_replace( '/('.$preg_dirsep.')+$/s', '', $tmp_path );
+			$tmp_path = preg_replace( '/^('.$preg_dirsep.')+/s', '', ''.$tmp_path );
+			$tmp_path = preg_replace( '/('.$preg_dirsep.')+$/s', '', ''.$tmp_path );
 			if( strlen($tmp_path) ){
 				$tmp_path = explode( DIRECTORY_SEPARATOR, $tmp_path );
 			}else{
@@ -614,7 +614,7 @@ class filesystem{
 		if( !array_key_exists('extension', $pathinfo) ){
 			$pathinfo['extension'] = '';
 		}
-		$RTN = preg_replace( '/\.'.preg_quote( $pathinfo['extension'], '/' ).'$/' , '' , $path );
+		$RTN = preg_replace( '/\.'.preg_quote( $pathinfo['extension'], '/' ).'$/' , '' , ''.$path );
 		return $RTN;
 	}
 
@@ -637,6 +637,7 @@ class filesystem{
 	 * @return string 拡張子
 	 */
 	public function get_extension( $path ){
+		if( is_null($path) ){ return null; }
 		$path = preg_replace('/\#.*$/si', '', $path);
 		$path = preg_replace('/\?.*$/si', '', $path);
 		$path = pathinfo( $path , PATHINFO_EXTENSION );
@@ -730,8 +731,8 @@ class filesystem{
 			if( !is_array( $Line ) ){ $Line = array(); }
 			foreach( $Line as $cell ){
 				$cell = mb_convert_encoding( ''.$cell , $options['charset'] , mb_internal_encoding().',UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP' );
-				if( preg_match( '/"/' , $cell ) ){
-					$cell = preg_replace( '/"/' , '""' , $cell);
+				if( preg_match( '/"/' , ''.$cell ) ){
+					$cell = preg_replace( '/"/' , '""' , ''.$cell);
 				}
 				if( strlen( $cell ) ){
 					$cell = '"'.$cell.'"';
@@ -1221,16 +1222,17 @@ class filesystem{
 	 * @return string 正規化されたパス
 	 */
 	public function normalize_path($path){
-		$path = trim($path);
+		if( is_null($path) ){ return null; }
+		$path = trim(''.$path);
 		$path = $this->convert_encoding( $path );//文字コードを揃える
 		$path = preg_replace( '/\\/|\\\\/s', '/', $path );//バックスラッシュをスラッシュに置き換える。
 		$path = preg_replace( '/^[A-Z]\\:\\//s', '/', $path );//Windowsのボリュームラベルを削除
 		$prefix = '';
-		if( preg_match( '/^((?:[a-zA-Z0-9]+\\:)?\\/)(\\/.*)$/', $path, $matched ) ){
+		if( preg_match( '/^((?:[a-zA-Z0-9]+\\:)?\\/)(\\/.*)$/', ''.$path, $matched ) ){
 			$prefix = $matched[1];
 			$path = $matched[2];
 		}
-		$path = preg_replace( '/\\/+/s', '/', $path );//重複するスラッシュを1つにまとめる
+		$path = preg_replace( '/\\/+/s', '/', ''.$path );//重複するスラッシュを1つにまとめる
 		return $prefix.$path;
 	}
 
@@ -1245,6 +1247,7 @@ class filesystem{
 	 * @return string ローカライズされたパス
 	 */
 	public function localize_path($path){
+		if( is_null($path) ){ return null; }
 		$path = $this->convert_filesystem_encoding( $path );//文字コードを揃える
 		$path = preg_replace( '/\\/|\\\\/s', '/', $path );//一旦スラッシュに置き換える。
 		if( $this->is_unix() ){
@@ -1265,7 +1268,6 @@ class filesystem{
 	 * @return string 文字セット変換後のテキスト
 	 */
 	private function convert_filesystem_encoding( $text ){
-		$RTN = $text;
 		if( !is_callable( 'mb_internal_encoding' ) ){
 			return $text;
 		}
@@ -1274,11 +1276,11 @@ class filesystem{
 		}
 
 		$to_encoding = $this->filesystem_encoding;
-		$from_encoding = mb_internal_encoding().',UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP,JIS,ASCII';
+		$from_encoding = mb_internal_encoding().',UTF-8,SJIS-win,cp932,eucJP-win,SJIS,EUC-JP,JIS,ASCII';
 
 		return $this->convert_encoding( $text, $to_encoding, $from_encoding );
 
-	}//convert_filesystem_encoding()
+	} // convert_filesystem_encoding()
 
 	/**
 	 * 受け取ったテキストを、ファイルシステムエンコードに変換する。
@@ -1302,7 +1304,7 @@ class filesystem{
 			$to_encoding_fin = 'UTF-8';
 		}
 
-		$from_encoding_fin = (strlen(''.$from_encoding)?$from_encoding.',':'').mb_internal_encoding().',UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP,JIS,ASCII';
+		$from_encoding_fin = (strlen(''.$from_encoding)?$from_encoding.',':'').mb_internal_encoding().',UTF-8,SJIS-win,cp932,eucJP-win,SJIS,EUC-JP,JIS,ASCII';
 
 		// ---
 		if( is_array( $text ) ){
@@ -1334,7 +1336,7 @@ class filesystem{
 			$crlf = 'LF';
 		}
 		$crlf_code = "\n";
-		switch(strtoupper($crlf)){
+		switch(strtoupper(''.$crlf)){
 			case 'CR':
 				$crlf_code = "\r";
 				break;
@@ -1359,7 +1361,7 @@ class filesystem{
 			if( !strlen( ''.$text ) ){
 				return $text;
 			}
-			$RTN = preg_replace( '/\r\n|\r|\n/', $crlf_code, $text );
+			$RTN = preg_replace( '/\r\n|\r|\n/', $crlf_code, ''.$text );
 		}
 		return $RTN;
 	}
