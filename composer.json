@@ -15,7 +15,7 @@
             "php ./vendor/phpunit/phpunit/phpunit"
         ] ,
         "documentation": [
-            "php ./vendor/phpdocumentor/phpdocumentor/bin/phpdoc --title \"tomk79/filesystem v1.1.0 API Document\" -d \"./php/\" -t \"./docs/\""
+            "php ./vendor/phpdocumentor/phpdocumentor/bin/phpdoc --title \"tomk79/filesystem v1.1.1 API Document\" -d \"./php/\" -t \"./docs/\""
         ]
     } ,
     "require": {
