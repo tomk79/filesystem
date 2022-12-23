@@ -1,6 +1,17 @@
+# Composer
+!.gitkeep
+vendor/
+composer.lock
+
+# PHPUnit
+.phpunit.result.cache
+
+# PHP Documentor
+.phpdoc
+phpDocumentor.phar
+
+# Others...
 .DS_Store
 Thumbs.db
-composer.lock
-/vendor/
-.phpdoc
-.phpunit.result.cache
+.~*.csv#
+~$*

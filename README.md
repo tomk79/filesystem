@@ -77,9 +77,9 @@ $ php ./vendor/phpunit/phpunit/phpunit
 ## phpDocumentor
 
 ```
-$ composer run-script documentation
+$ wget https://phpdoc.org/phpDocumentor.phar;
+$ composer run-script documentation;
 ```
-
 
 ## Change Log
 
