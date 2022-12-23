@@ -83,6 +83,10 @@ $ composer run-script documentation;
 
 ## Change Log
 
+### tomk79/filesystem v1.1.2 (リリース日未定)
+
+- detect order の全体を指示できるようになった。
+
 ### tomk79/filesystem v1.1.1 (2022-01-08)
 
 - PHP 8.1 で起きる不具合を修正。

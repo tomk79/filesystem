@@ -672,16 +672,10 @@ class filesystem{
 		if( !is_array($options) ){
 			$options = array();
 		}
-		if( !array_key_exists( 'charset', $options ) ){ $options['charset'] = null; }
-		if( !array_key_exists( 'delimiter', $options ) ){ $options['delimiter'] = null; }
-		if( !array_key_exists( 'enclosure', $options ) ){ $options['enclosure'] = null; }
-		if( !array_key_exists( 'size', $options ) ){ $options['size'] = null; }
-		if( !array_key_exists( 'charset', $options ) ){ $options['charset'] = null; }
-
-		if( !strlen( ''.@$options['delimiter'] ) )    { $options['delimiter'] = ','; }
-		if( !strlen( ''.@$options['enclosure'] ) )    { $options['enclosure'] = '"'; }
-		if( !strlen( ''.@$options['size'] ) )         { $options['size'] = 10000; }
-		if( !strlen( ''.@$options['charset'] ) )      { $options['charset'] = 'UTF-8'; }//←CSVの文字セット
+		if( !isset($options['delimiter']) || !strlen( ''.@$options['delimiter'] ) )    { $options['delimiter'] = ','; }
+		if( !isset($options['enclosure']) || !strlen( ''.@$options['enclosure'] ) )    { $options['enclosure'] = '"'; }
+		if( !isset($options['size'])      || !strlen( ''.@$options['size'] ) )         { $options['size'] = 10000; }
+		if( !isset($options['charset'])   || !strlen( ''.@$options['charset'] ) )      { $options['charset'] = 'UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP'; }//←CSVの文字セット
 
 		$RTN = array();
 		$fp = fopen( $path, 'r' );
@@ -691,7 +685,7 @@ class filesystem{
 
 		while( $SMMEMO = fgetcsv( $fp , intval( $options['size'] ) , $options['delimiter'] , $options['enclosure'] ) ){
 			foreach( $SMMEMO as $key=>$row ){
-				$SMMEMO[$key] = mb_convert_encoding( ''.$row , mb_internal_encoding() , ''.$options['charset'].',UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP' );
+				$SMMEMO[$key] = mb_convert_encoding( ''.$row , mb_internal_encoding(), $options['charset'] );
 			}
 			array_push( $RTN , $SMMEMO );
 		}
@@ -721,7 +715,7 @@ class filesystem{
 		if( !array_key_exists( 'charset', $options ) ){
 			$options['charset'] = null;
 		}
-		if( !strlen( ''.$options['charset'] ) ){
+		if( !isset($options['charset']) || !strlen( ''.$options['charset'] ) ){
 			$options['charset'] = 'UTF-8';
 		}
 
@@ -730,7 +724,7 @@ class filesystem{
 			if( is_null( $Line ) ){ continue; }
 			if( !is_array( $Line ) ){ $Line = array(); }
 			foreach( $Line as $cell ){
-				$cell = mb_convert_encoding( ''.$cell , $options['charset'] , mb_internal_encoding().',UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP' );
+				$cell = mb_convert_encoding( ''.$cell , $options['charset']);
 				if( preg_match( '/"/' , ''.$cell ) ){
 					$cell = preg_replace( '/"/' , '""' , ''.$cell);
 				}
@@ -1276,11 +1270,10 @@ class filesystem{
 		}
 
 		$to_encoding = $this->filesystem_encoding;
-		$from_encoding = mb_internal_encoding().',UTF-8,SJIS-win,cp932,eucJP-win,SJIS,EUC-JP,JIS,ASCII';
+		$from_encoding = null;
 
 		return $this->convert_encoding( $text, $to_encoding, $from_encoding );
-
-	} // convert_filesystem_encoding()
+	}
 
 	/**
 	 * 受け取ったテキストを、ファイルシステムエンコードに変換する。
@@ -1304,7 +1297,7 @@ class filesystem{
 			$to_encoding_fin = 'UTF-8';
 		}
 
-		$from_encoding_fin = (strlen(''.$from_encoding)?$from_encoding.',':'').mb_internal_encoding().',UTF-8,SJIS-win,cp932,eucJP-win,SJIS,EUC-JP,JIS,ASCII';
+		$from_encoding_fin = (is_string($from_encoding) && strlen($from_encoding) ? $from_encoding : 'UTF-8,SJIS-win,cp932,eucJP-win,SJIS,EUC-JP,JIS,ASCII');
 
 		// ---
 		if( is_array( $text ) ){
@@ -1322,7 +1315,7 @@ class filesystem{
 			$RTN = mb_convert_encoding( ''.$text, $to_encoding_fin, $from_encoding_fin );
 		}
 		return $RTN;
-	}//convert_encoding()
+	}
 
 	/**
 	 * 受け取ったテキストを、指定の改行コードに変換する。
