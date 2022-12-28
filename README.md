@@ -83,7 +83,7 @@ $ composer run-script documentation;
 
 ## Change Log
 
-### tomk79/filesystem v1.1.2 (リリース日未定)
+### tomk79/filesystem v1.1.2 (2022-12-28)
 
 - detect order の全体を指示できるようになった。
 
