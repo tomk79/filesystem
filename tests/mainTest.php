@@ -131,8 +131,8 @@ class mainTest extends PHPUnit\Framework\TestCase{
 		);
 
 		$this->assertEquals(
-			$this->fs->get_realpath('/test/../test.txt'),
-			$this->fs->localize_path('/test.txt')
+			$this->fs->get_realpath('./test/../test.txt', '/'),
+			$this->fs->get_realpath($this->fs->get_realpath('./test/../test.txt', '/'))
 		);
 
 	}
