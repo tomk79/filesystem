@@ -479,8 +479,8 @@ class filesystem{
 			}
 			if( $row == '..' ){
 				$path = dirname($path);
-				if($path == DIRECTORY_SEPARATOR){
-					$path = '';
+				if($path == DIRECTORY_SEPARATOR || preg_match('/^[a-zA-Z]\:[\\/\\\\]*$/s', $path) ){
+					$path ='';
 				}
 				continue;
 			}
