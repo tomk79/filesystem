@@ -82,7 +82,7 @@ $ composer run-script documentation;
 
 ## Change Log
 
-### tomk79/filesystem v1.2.0 (リリース日未定)
+### tomk79/filesystem v1.2.0 (2022-12-29)
 
 - `filesystem_encoding` の処理を廃止した。(Windowsで起きる問題の回避のため)
 - Windows: `$fs->get_realpath()` で、相対パス指定がルートに到達したとき、先頭の `DIRECTORY_SEPARATOR` が2重に付与される場合がある問題を修正した。
