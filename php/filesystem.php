@@ -39,9 +39,6 @@ class filesystem{
 		if( array_key_exists('dir_default_permission', $conf) && strlen( $conf['dir_default_permission'] ) ){
 			$this->default_permission['dir'] = octdec( $conf['dir_default_permission'] );
 		}
-		if( array_key_exists('filesystem_encoding', $conf) && strlen( $conf['filesystem_encoding'] ) ){
-			$this->filesystem_encoding = trim( $conf['filesystem_encoding'] );
-		}
 	}
 
 	/**
@@ -949,10 +946,6 @@ class filesystem{
 			array_push( $RTN , $ent );
 		}
 		closedir($dr);
-		if( strlen( ''.$this->filesystem_encoding ) ){
-			//PxFW 0.6.4 追加
-			$RTN = @$this->convert_filesystem_encoding( $RTN );
-		}
 		usort($RTN, "strnatcmp");
 		return	$RTN;
 	}//ls()
@@ -1096,13 +1089,6 @@ class filesystem{
 	 * @return bool 同じ場合に `true`、異なる場合に `false` を返します。
 	 */
 	public function compare_dir( $dir_a , $dir_b , $options = array() ){
-
-		if( strlen( $this->filesystem_encoding ) ){
-			//PxFW 0.6.4 追加
-			$dir_a = @$this->convert_filesystem_encoding( $dir_a );
-			$dir_b = @$this->convert_filesystem_encoding( $dir_b );
-		}
-
 		if( ( $this->is_file( $dir_a ) && !$this->is_file( $dir_b ) ) || ( !$this->is_file( $dir_a ) && $this->is_file( $dir_b ) ) ){
 			return false;
 		}
@@ -1242,7 +1228,6 @@ class filesystem{
 	 */
 	public function localize_path($path){
 		if( is_null($path) ){ return null; }
-		$path = $this->convert_filesystem_encoding( $path );//文字コードを揃える
 		$path = preg_replace( '/\\/|\\\\/s', '/', $path );//一旦スラッシュに置き換える。
 		if( $this->is_unix() ){
 			// Windows以外だった場合に、ボリュームラベルを受け取ったら削除する
@@ -1251,28 +1236,6 @@ class filesystem{
 		$path = preg_replace( '/\\/+/s', '/', $path );//重複するスラッシュを1つにまとめる
 		$path = preg_replace( '/\\/|\\\\/s', DIRECTORY_SEPARATOR, $path );
 		return $path;
-	}
-
-
-
-	/**
-	 * 受け取ったテキストを、ファイルシステムエンコードに変換する。
-	 *
-	 * @param mixed $text テキスト
-	 * @return string 文字セット変換後のテキスト
-	 */
-	private function convert_filesystem_encoding( $text ){
-		if( !is_callable( 'mb_internal_encoding' ) ){
-			return $text;
-		}
-		if( !strlen( ''.$this->filesystem_encoding ) ){
-			return $text;
-		}
-
-		$to_encoding = $this->filesystem_encoding;
-		$from_encoding = null;
-
-		return $this->convert_encoding( $text, $to_encoding, $from_encoding );
 	}
 
 	/**

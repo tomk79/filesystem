@@ -58,7 +58,6 @@ require_once('./vendor/autoload.php');
 $fs = new tomk79\filesystem(array(
   'file_default_permission'=>'775',
   'dir_default_permission'=>'775',
-  'filesystem_encoding'=>'UTF-8'
 ));
 ```
 
@@ -82,6 +81,10 @@ $ composer run-script documentation;
 ```
 
 ## Change Log
+
+### tomk79/filesystem v1.2.0 (リリース日未定)
+
+- `filesystem_encoding` の処理を廃止した。(Windowsで起きる問題の回避のため)
 
 ### tomk79/filesystem v1.1.2 (2022-12-28)
 
