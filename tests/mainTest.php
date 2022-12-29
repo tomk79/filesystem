@@ -130,6 +130,11 @@ class mainTest extends PHPUnit\Framework\TestCase{
 			DIRECTORY_SEPARATOR.'mktest'.DIRECTORY_SEPARATOR
 		);
 
+		$this->assertEquals(
+			$this->fs->get_realpath('/test/../test.txt'),
+			$this->fs->localize_path('/test.txt')
+		);
+
 	}
 
 	/**
