@@ -82,6 +82,10 @@ $ composer run-script documentation;
 
 ## Change Log
 
+### tomk79/filesystem v1.2.1 (リリース日未定)
+
+= 内部コードの細かい修正。
+
 ### tomk79/filesystem v1.2.0 (2022-12-29)
 
 - `filesystem_encoding` の処理を廃止した。(Windowsで起きる問題の回避のため)

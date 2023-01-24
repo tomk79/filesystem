@@ -125,7 +125,15 @@ class filesystem{
 			$this->chmod( $dirpath , $perm );
 			return true;
 		}
-		$result = @mkdir( $dirpath );
+		if( !$this->is_dir( dirname($dirpath) ) ){
+			// 親ディレクトリが存在しない場合は、作成できない
+			return false;
+		}
+		if( !$this->is_writable( dirname($dirpath) ) ){
+			// 親ディレクトリに書き込みできない場合は、作成できない
+			return false;
+		}
+		$result = mkdir( $dirpath );
 		$this->chmod( $dirpath , $perm );
 		clearstatcache();
 		return	$result;
