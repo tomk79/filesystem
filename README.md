@@ -82,6 +82,10 @@ $ composer run-script documentation;
 
 ## Change Log
 
+### tomk79/filesystem v1.2.2 (リリース日未定)
+
+- Windowsで、排他ロックされたファイルの削除を試みたときに起きる不具合を修正。
+
 ### tomk79/filesystem v1.2.1 (2023-02-05)
 
 - 内部コードの細かい修正。

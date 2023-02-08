@@ -193,7 +193,7 @@ class filesystem{
 		}
 		if( $this->is_file( $path ) || $this->is_link( $path ) ){
 			// ファイルまたはシンボリックリンクの場合の処理
-			$result = unlink( $path );
+			$result = @unlink( $path );
 			return	$result;
 
 		}elseif( $this->is_dir( $path ) ){
