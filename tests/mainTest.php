@@ -595,7 +595,10 @@ class mainTest extends PHPUnit\Framework\TestCase{
 		$this->fs->save_file( __DIR__.'/mktest/testdir/testdir2/test2.txt', 'test2' );
 		$this->assertTrue( $this->fs->chmod( __DIR__.'/mktest/testdir/testdir2/', 0776 ) );
 		$this->assertTrue( $this->fs->chmod( __DIR__.'/mktest/testdir/testdir2/test1.txt', 0776 ) );
+		$this->assertTrue( $this->fs->chmod_r( __DIR__.'/mktest/testdir/', 0777 ) );
+		$this->assertEquals( $this->fs->get_permission( __DIR__.'/mktest/testdir/' ), '777' );
 		$this->assertTrue( $this->fs->chmod_r( __DIR__.'/mktest/testdir/', 0770 ) );
+		$this->assertEquals( $this->fs->get_permission( __DIR__.'/mktest/testdir/' ), '770' );
 		$this->assertTrue( $this->fs->rm( __DIR__.'/mktest/testdir/' ) );
 	}
 

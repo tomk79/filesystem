@@ -890,29 +890,22 @@ class filesystem{
 			}
 		}elseif( $this->is_dir( $filepath ) ){
 			$itemlist = $this->ls( $filepath );
+			if( !$this->chmod( $filepath, $perm_dir ) ){
+				$result = false;
+			}
 			if( is_array($itemlist) ){
 				foreach( $itemlist as $Line ){
 					if( $Line == '.' || $Line == '..' ){ continue; }
-					if( $this->is_dir( $filepath.DIRECTORY_SEPARATOR.$Line ) ){
-						if( !$this->chmod( $filepath.DIRECTORY_SEPARATOR.$Line, $perm_dir ) ){
-							$result = false;
-						}
-						if( !$this->chmod_r( $filepath.DIRECTORY_SEPARATOR.$Line, $perm_file, $perm_dir ) ){
-							$result = false;
-						}
-						continue;
-					}elseif( $this->is_file( $filepath.DIRECTORY_SEPARATOR.$Line ) ){
-						if( !$this->chmod( $filepath.DIRECTORY_SEPARATOR.$Line, $perm_file ) ){
-							$result = false;
-						}
-						continue;
+					if( !$this->chmod_r( $filepath.DIRECTORY_SEPARATOR.$Line, $perm_file, $perm_dir ) ){
+						$result = false;
 					}
+					continue;
 				}
 			}
 		}
 
 		return $result;
-	} // chmod_r()
+	}
 
 
 	/**
@@ -930,7 +923,7 @@ class filesystem{
 		$perm = rtrim( sprintf( "%o\n" , fileperms( $path ) ) );
 		$start = strlen( $perm ) - 3;
 		return substr( $perm , $start , 3 );
-	}//get_permission()
+	}
 
 
 	/**
