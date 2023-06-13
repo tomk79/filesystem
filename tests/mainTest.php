@@ -598,7 +598,7 @@ class mainTest extends PHPUnit\Framework\TestCase{
 		$this->assertTrue( $this->fs->chmod_r( __DIR__.'/mktest/testdir/', 0777 ) );
 		$this->assertEquals( $this->fs->get_permission( __DIR__.'/mktest/testdir/' ), '777' );
 		$this->assertTrue( $this->fs->chmod_r( __DIR__.'/mktest/testdir/', 0770 ) );
-		$this->assertEquals( $this->fs->get_permission( __DIR__.'/mktest/testdir/' ), '770' );
+		$this->assertEquals( $this->fs->get_permission( __DIR__.'/mktest/testdir/' ), (realpath('/') == '/' ? '770' : '777') ); // Windowsでは常に 777 が返される
 		$this->assertTrue( $this->fs->rm( __DIR__.'/mktest/testdir/' ) );
 	}
 
