@@ -33,10 +33,10 @@ class filesystem{
 		if(!is_array($conf)){
 			$conf = array();
 		}
-		if( array_key_exists('file_default_permission', $conf) && strlen( $conf['file_default_permission'] ) ){
+		if( array_key_exists('file_default_permission', $conf) && strlen( $conf['file_default_permission'] ?? '' ) ){
 			$this->default_permission['file'] = octdec( $conf['file_default_permission'] );
 		}
-		if( array_key_exists('dir_default_permission', $conf) && strlen( $conf['dir_default_permission'] ) ){
+		if( array_key_exists('dir_default_permission', $conf) && strlen( $conf['dir_default_permission'] ?? '' ) ){
 			$this->default_permission['dir'] = octdec( $conf['dir_default_permission'] );
 		}
 	}
@@ -53,7 +53,7 @@ class filesystem{
 			return is_writable( dirname($path) );
 		}
 		return is_writable( $path );
-	} // is_writable()
+	}
 
 	/**
 	 * 読み込んでよいアイテムか検証する。
@@ -64,7 +64,7 @@ class filesystem{
 	public function is_readable( $path ){
 		$path = $this->localize_path($path);
 		return is_readable( $path );
-	}//is_readable()
+	}
 
 	/**
 	 * ファイルが存在するかどうか調べる。
@@ -75,7 +75,7 @@ class filesystem{
 	public function is_file( $path ){
 		$path = $this->localize_path($path);
 		return is_file( $path );
-	}//is_file()
+	}
 
 	/**
 	 * シンボリックリンクかどうか調べる。
@@ -86,7 +86,7 @@ class filesystem{
 	public function is_link( $path ){
 		$path = $this->localize_path($path);
 		return is_link( $path );
-	}//is_link()
+	}
 
 	/**
 	 * ディレクトリが存在するかどうか調べる。
@@ -97,7 +97,7 @@ class filesystem{
 	public function is_dir( $path ){
 		$path = $this->localize_path($path);
 		return is_dir( $path );
-	}//is_dir()
+	}
 
 	/**
 	 * ファイルまたはディレクトリが存在するかどうか調べる。
@@ -108,7 +108,7 @@ class filesystem{
 	public function file_exists( $path ){
 		$path = $this->localize_path($path);
 		return file_exists( $path );
-	} // file_exists()
+	}
 
 	/**
 	 * ディレクトリを作成する。
@@ -137,7 +137,7 @@ class filesystem{
 		$this->chmod( $dirpath , $perm );
 		clearstatcache();
 		return	$result;
-	}//mkdir()
+	}
 
 	/**
 	 * ディレクトリを作成する(上層ディレクトリも全て作成)
@@ -157,8 +157,8 @@ class filesystem{
 		$patharray = explode( DIRECTORY_SEPARATOR , $this->localize_path( $this->get_realpath($dirpath) ) );
 		$targetpath = '';
 		foreach( $patharray as $idx=>$Line ){
-			if( !strlen( ''.$Line ) || $Line == '.' || $Line == '..' ){ continue; }
-			if(!($idx===0 && DIRECTORY_SEPARATOR == '\\' && preg_match('/^[a-zA-Z]\:$/s', ''.$Line))){
+			if( !strlen( $Line ?? '' ) || $Line == '.' || $Line == '..' ){ continue; }
+			if(!($idx===0 && DIRECTORY_SEPARATOR == '\\' && preg_match('/^[a-zA-Z]\:$/s', $Line ?? ''))){
 				$targetpath .= DIRECTORY_SEPARATOR;
 			}
 			$targetpath .= $Line;
@@ -172,7 +172,7 @@ class filesystem{
 			}
 		}
 		return true;
-	}//mkdir_r()
+	}
 
 	/**
 	 * ファイルやディレクトリを中身ごと完全に削除する。
@@ -211,7 +211,7 @@ class filesystem{
 		}
 
 		return false;
-	}//rm()
+	}
 
 	/**
 	 * ディレクトリを削除する。
@@ -312,7 +312,7 @@ class filesystem{
 			return false;
 		}
 
-		if( !strlen( ''.$content ) ){
+		if( !strlen( $content ?? '' ) ){
 			// 空白のファイルで上書きしたい場合
 			if( $this->is_file( $filepath ) ){
 				@unlink( $filepath );
@@ -443,7 +443,7 @@ class filesystem{
 	 */
 	public function get_realpath( $path, $cd = '.' ){
 		$is_dir = false;
-		if( preg_match( '/(\/|\\\\)+$/s', ''.$path ) ){
+		if( preg_match( '/(\/|\\\\)+$/s', $path ?? '' ) ){
 			$is_dir = true;
 		}
 		$path = $this->localize_path($path);
@@ -453,7 +453,7 @@ class filesystem{
 
 		if( $this->is_dir($cd) ){
 			$cd = realpath($cd);
-		}elseif( !preg_match('/^((?:[A-Za-z]\\:'.$preg_dirsep.')|'.$preg_dirsep.'{1,2})(.*?)$/', ''.$cd) ){
+		}elseif( !preg_match('/^((?:[A-Za-z]\\:'.$preg_dirsep.')|'.$preg_dirsep.'{1,2})(.*?)$/', $cd ?? '') ){
 			$cd = false;
 		}
 		if( $cd === false ){
@@ -462,7 +462,7 @@ class filesystem{
 
 		$prefix = '';
 		$localpath = $path;
-		if( preg_match('/^((?:[A-Za-z]\\:'.$preg_dirsep.')|'.$preg_dirsep.'{1,2})(.*?)$/', ''.$path, $matched) ){
+		if( preg_match('/^((?:[A-Za-z]\\:'.$preg_dirsep.')|'.$preg_dirsep.'{1,2})(.*?)$/', $path ?? '', $matched) ){
 			// もともと絶対パスの指定か調べる
 			$prefix = preg_replace('/'.$preg_dirsep.'$/', '', $matched[1]);
 			$localpath = $matched[2];
@@ -492,7 +492,7 @@ class filesystem{
 				}
 				continue;
 			}
-			if(!($idx===0 && DIRECTORY_SEPARATOR == '\\' && preg_match('/^[a-zA-Z]\:$/s', ''.$row))){
+			if(!($idx===0 && DIRECTORY_SEPARATOR == '\\' && preg_match('/^[a-zA-Z]\:$/s', $row ?? ''))){
 				$path .= DIRECTORY_SEPARATOR;
 			}
 			$path .= $row;
@@ -518,10 +518,10 @@ class filesystem{
 	 */
 	public function get_relatedpath( $path, $cd = '.' ){
 		$is_dir = false;
-		if( preg_match( '/(\/|\\\\)+$/s', ''.$path ) ){
+		if( preg_match( '/(\/|\\\\)+$/s', $path ?? '' ) ){
 			$is_dir = true;
 		}
-		if( !strlen( ''.$cd ) ){
+		if( !strlen( $cd ?? '' ) ){
 			$cd = realpath('.');
 		}elseif( $this->is_dir($cd) ){
 			$cd = realpath($cd);
@@ -534,10 +534,10 @@ class filesystem{
 			$tmp_path = $fs->localize_path( $tmp_path );
 			$preg_dirsep = preg_quote(DIRECTORY_SEPARATOR, '/');
 			if( DIRECTORY_SEPARATOR == '\\' ){
-				$tmp_path = preg_replace( '/^[a-zA-Z]\:/s', '', ''.$tmp_path );
+				$tmp_path = preg_replace( '/^[a-zA-Z]\:/s', '', $tmp_path ?? '' );
 			}
-			$tmp_path = preg_replace( '/^('.$preg_dirsep.')+/s', '', ''.$tmp_path );
-			$tmp_path = preg_replace( '/('.$preg_dirsep.')+$/s', '', ''.$tmp_path );
+			$tmp_path = preg_replace( '/^('.$preg_dirsep.')+/s', '', $tmp_path ?? '' );
+			$tmp_path = preg_replace( '/('.$preg_dirsep.')+$/s', '', $tmp_path ?? '' );
 			if( strlen($tmp_path) ){
 				$tmp_path = explode( DIRECTORY_SEPARATOR, $tmp_path );
 			}else{
@@ -604,7 +604,7 @@ class filesystem{
 	 */
 	public function get_basename( $path ){
 		$path = pathinfo( $path , PATHINFO_BASENAME );
-		if( !strlen(''.$path) ){$path = null;}
+		if( !strlen($path ?? '') ){$path = null;}
 		return $path;
 	}
 
@@ -619,7 +619,7 @@ class filesystem{
 		if( !array_key_exists('extension', $pathinfo) ){
 			$pathinfo['extension'] = '';
 		}
-		$RTN = preg_replace( '/\.'.preg_quote( $pathinfo['extension'], '/' ).'$/' , '' , ''.$path );
+		$RTN = preg_replace( '/\.'.preg_quote( $pathinfo['extension'], '/' ).'$/' , '' , $path ?? '' );
 		return $RTN;
 	}
 
@@ -631,7 +631,7 @@ class filesystem{
 	 */
 	public function get_dirpath( $path ){
 		$path = pathinfo( $path , PATHINFO_DIRNAME );
-		if( !strlen(''.$path) ){$path = null;}
+		if( !strlen($path ?? '') ){$path = null;}
 		return $path;
 	}
 
@@ -646,7 +646,7 @@ class filesystem{
 		$path = preg_replace('/\#.*$/si', '', $path);
 		$path = preg_replace('/\?.*$/si', '', $path);
 		$path = pathinfo( $path , PATHINFO_EXTENSION );
-		if(!strlen(''.$path)){$path = null;}
+		if(!strlen($path ?? '')){$path = null;}
 		return $path;
 	}
 
@@ -677,10 +677,10 @@ class filesystem{
 		if( !is_array($options) ){
 			$options = array();
 		}
-		if( !isset($options['delimiter']) || !strlen( ''.@$options['delimiter'] ) )    { $options['delimiter'] = ','; }
-		if( !isset($options['enclosure']) || !strlen( ''.@$options['enclosure'] ) )    { $options['enclosure'] = '"'; }
-		if( !isset($options['size'])      || !strlen( ''.@$options['size'] ) )         { $options['size'] = 10000; }
-		if( !isset($options['charset'])   || !strlen( ''.@$options['charset'] ) )      { $options['charset'] = 'UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP'; }//←CSVの文字セット
+		if( !isset($options['delimiter']) || !strlen( $options['delimiter'] ?? '' ) )    { $options['delimiter'] = ','; }
+		if( !isset($options['enclosure']) || !strlen( $options['enclosure'] ?? '' ) )    { $options['enclosure'] = '"'; }
+		if( !isset($options['size'])      || !strlen( $options['size'] ?? '' ) )         { $options['size'] = 10000; }
+		if( !isset($options['charset'])   || !strlen( $options['charset'] ?? '' ) )      { $options['charset'] = 'UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP'; }//←CSVの文字セット
 
 		$RTN = array();
 		$fp = fopen( $path, 'r' );
@@ -690,7 +690,7 @@ class filesystem{
 
 		while( $SMMEMO = fgetcsv( $fp , intval( $options['size'] ) , $options['delimiter'] , $options['enclosure'] ) ){
 			foreach( $SMMEMO as $key=>$row ){
-				$SMMEMO[$key] = mb_convert_encoding( ''.$row , mb_internal_encoding(), $options['charset'] );
+				$SMMEMO[$key] = mb_convert_encoding( $row ?? '' , mb_internal_encoding(), $options['charset'] );
 			}
 			array_push( $RTN , $SMMEMO );
 		}
@@ -720,7 +720,7 @@ class filesystem{
 		if( !array_key_exists( 'charset', $options ) ){
 			$options['charset'] = null;
 		}
-		if( !isset($options['charset']) || !strlen( ''.$options['charset'] ) ){
+		if( !isset($options['charset']) || !strlen( $options['charset'] ?? '' ) ){
 			$options['charset'] = 'UTF-8';
 		}
 
@@ -729,9 +729,9 @@ class filesystem{
 			if( is_null( $Line ) ){ continue; }
 			if( !is_array( $Line ) ){ $Line = array(); }
 			foreach( $Line as $cell ){
-				$cell = mb_convert_encoding( ''.$cell , $options['charset']);
-				if( preg_match( '/"/' , ''.$cell ) ){
-					$cell = preg_replace( '/"/' , '""' , ''.$cell);
+				$cell = mb_convert_encoding( $cell ?? '' , $options['charset']);
+				if( preg_match( '/"/' , $cell ?? '' ) ){
+					$cell = preg_replace( '/"/' , '""' , $cell ?? '');
 				}
 				if( strlen( $cell ) ){
 					$cell = '"'.$cell.'"';
@@ -1204,16 +1204,16 @@ class filesystem{
 	 */
 	public function normalize_path($path){
 		if( is_null($path) ){ return null; }
-		$path = trim(''.$path);
+		$path = trim($path ?? '');
 		$path = $this->convert_encoding( $path );//文字コードを揃える
 		$path = preg_replace( '/\\/|\\\\/s', '/', $path );//バックスラッシュをスラッシュに置き換える。
 		$path = preg_replace( '/^[A-Z]\\:\\//s', '/', $path );//Windowsのボリュームラベルを削除
 		$prefix = '';
-		if( preg_match( '/^((?:[a-zA-Z0-9]+\\:)?\\/)(\\/.*)$/', ''.$path, $matched ) ){
+		if( preg_match( '/^((?:[a-zA-Z0-9]+\\:)?\\/)(\\/.*)$/', $path ?? '', $matched ) ){
 			$prefix = $matched[1];
 			$path = $matched[2];
 		}
-		$path = preg_replace( '/\\/+/s', '/', ''.$path );//重複するスラッシュを1つにまとめる
+		$path = preg_replace( '/\\/+/s', '/', $path ?? '' );//重複するスラッシュを1つにまとめる
 		return $prefix.$path;
 	}
 
@@ -1254,10 +1254,10 @@ class filesystem{
 		}
 
 		$to_encoding_fin = $to_encoding;
-		if( !strlen(''.$to_encoding_fin) ){
+		if( !strlen($to_encoding_fin ?? '') ){
 			$to_encoding_fin = mb_internal_encoding();
 		}
-		if( !strlen(''.$to_encoding_fin) ){
+		if( !strlen($to_encoding_fin ?? '') ){
 			$to_encoding_fin = 'UTF-8';
 		}
 
@@ -1273,10 +1273,10 @@ class filesystem{
 				$RTN[$key] = $this->convert_encoding( $row, $to_encoding, $from_encoding );
 			}
 		}else{
-			if( !strlen( ''.$text ) ){
+			if( !strlen( $text ?? '' ) ){
 				return $text;
 			}
-			$RTN = mb_convert_encoding( ''.$text, $to_encoding_fin, $from_encoding_fin );
+			$RTN = mb_convert_encoding( $text ?? '', $to_encoding_fin, $from_encoding_fin );
 		}
 		return $RTN;
 	}
@@ -1289,11 +1289,11 @@ class filesystem{
 	 * @return string 改行コード変換後のテキスト
 	 */
 	public function convert_crlf( $text, $crlf = null ){
-		if( !strlen(''.$crlf) ){
+		if( !strlen($crlf ?? '') ){
 			$crlf = 'LF';
 		}
 		$crlf_code = "\n";
-		switch(strtoupper(''.$crlf)){
+		switch(strtoupper($crlf ?? '')){
 			case 'CR':
 				$crlf_code = "\r";
 				break;
@@ -1315,10 +1315,10 @@ class filesystem{
 				$RTN[$key] = $this->convert_crlf( $val , $crlf );
 			}
 		}else{
-			if( !strlen( ''.$text ) ){
+			if( !strlen( $text ?? '' ) ){
 				return $text;
 			}
-			$RTN = preg_replace( '/\r\n|\r|\n/', $crlf_code, ''.$text );
+			$RTN = preg_replace( '/\r\n|\r|\n/', $crlf_code, $text );
 		}
 		return $RTN;
 	}
