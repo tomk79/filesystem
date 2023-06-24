@@ -82,7 +82,7 @@ $ composer run-script documentation;
 
 ## Change Log
 
-### tomk79/filesystem v1.2.3 (リリース日未定)
+### tomk79/filesystem v1.2.3 (2023-06-25)
 
 - `$fs->chmod_r()` で、対象のディレクトリのパーミッションが変更されない不具合を修正した。
 
