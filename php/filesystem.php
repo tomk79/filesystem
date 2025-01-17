@@ -658,6 +658,7 @@ class filesystem{
 	 * @param array $options オプション
 	 * - delimiter = 区切り文字(省略時、カンマ)
 	 * - enclosure = クロージャー文字(省略時、ダブルクオート)
+	 * - escape = エスケープ文字(省略時、ダブルクオート)
 	 * - size = 一度に読み込むサイズ(省略時、10000)
 	 * - charset = 文字セット(省略時、UTF-8)
 	 * @return array|bool 読み込みに成功した場合、行列を格納した配列、失敗した場合には `false` を返します。
@@ -679,6 +680,7 @@ class filesystem{
 		}
 		if( !isset($options['delimiter']) || !strlen( $options['delimiter'] ?? '' ) )    { $options['delimiter'] = ','; }
 		if( !isset($options['enclosure']) || !strlen( $options['enclosure'] ?? '' ) )    { $options['enclosure'] = '"'; }
+		if( !isset($options['escape'])    || !strlen( $options['escape'] ?? '' ) )       { $options['escape'] = ''; }
 		if( !isset($options['size'])      || !strlen( $options['size'] ?? '' ) )         { $options['size'] = 10000; }
 		if( !isset($options['charset'])   || !strlen( $options['charset'] ?? '' ) )      { $options['charset'] = 'UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP'; }//←CSVの文字セット
 
@@ -688,7 +690,7 @@ class filesystem{
 			return false;
 		}
 
-		while( $SMMEMO = fgetcsv( $fp , intval( $options['size'] ) , $options['delimiter'] , $options['enclosure'] ) ){
+		while( $SMMEMO = fgetcsv( $fp, intval( $options['size'] ), $options['delimiter'], $options['enclosure'], $options['escape'] ) ){
 			foreach( $SMMEMO as $key=>$row ){
 				$SMMEMO[$key] = mb_convert_encoding( $row ?? '' , mb_internal_encoding(), $options['charset'] );
 			}

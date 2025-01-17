@@ -82,6 +82,10 @@ $ composer run-script documentation;
 
 ## Change Log
 
+### tomk79/filesystem v1.2.4 (リリース日未定)
+
+- `$fs->read_csv()` のオプションに `escape` を追加。
+
 ### tomk79/filesystem v1.2.3 (2023-06-25)
 
 - `$fs->chmod_r()` で、対象のディレクトリのパーミッションが変更されない不具合を修正した。
