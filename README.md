@@ -82,7 +82,7 @@ $ composer run-script documentation;
 
 ## Change Log
 
-### tomk79/filesystem v1.2.4 (リリース日未定)
+### tomk79/filesystem v1.2.4 (2025-01-18)
 
 - `$fs->read_csv()` のオプションに `escape` を追加。
 
