@@ -681,7 +681,7 @@ class filesystem{
 		if( !isset($options['delimiter']) || !strlen( $options['delimiter'] ?? '' ) )    { $options['delimiter'] = ','; }
 		if( !isset($options['enclosure']) || !strlen( $options['enclosure'] ?? '' ) )    { $options['enclosure'] = '"'; }
 		if( !isset($options['escape'])    || !strlen( $options['escape'] ?? '' ) )       { $options['escape'] = ''; }
-		if( !isset($options['size'])      || !strlen( $options['size'] ?? '' ) )         { $options['size'] = 10000; }
+		if( !isset($options['size'])      || !strlen( $options['size'] ?? '' ) )         { $options['size'] = 0; }
 		if( !isset($options['charset'])   || !strlen( $options['charset'] ?? '' ) )      { $options['charset'] = 'UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP'; }//←CSVの文字セット
 
 		$RTN = array();

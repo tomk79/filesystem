@@ -82,6 +82,10 @@ $ composer run-script documentation;
 
 ## Change Log
 
+### tomk79/filesystem v1.2.5 (2025-xx-xx)
+
+- `$fs->read_csv()` の `size` オプションのデフォルト値を `0` に変更した。
+
 ### tomk79/filesystem v1.2.4 (2025-01-18)
 
 - `$fs->read_csv()` のオプションに `escape` を追加。
