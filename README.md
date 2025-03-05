@@ -84,6 +84,7 @@ $ composer run-script documentation;
 
 ### tomk79/filesystem v1.2.5 (2025-xx-xx)
 
+- PHP 7 系で、`$fs->read_csv()` の `escape` オプションのデフォルト値を `\` に変更した。(バージョン依存のエラーを回避するため)
 - `$fs->read_csv()` の `size` オプションのデフォルト値を `0` に変更した。
 
 ### tomk79/filesystem v1.2.4 (2025-01-18)
