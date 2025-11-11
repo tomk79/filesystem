@@ -82,6 +82,10 @@ $ composer run-script documentation;
 
 ## Change Log
 
+### tomk79/filesystem v1.3.0 (リリース日未定)
+
+- `$fs->save_file()`, `$fs->copy()`, `$fs->mkdir()` で、新規で作成した場合以外にパーミッションを更新しないようになった。
+
 ### tomk79/filesystem v1.2.5 (2025-03-05)
 
 - PHP 7 系で、`$fs->read_csv()` の `escape` オプションのデフォルト値を `\` に変更した。(バージョン依存のエラーを回避するため)

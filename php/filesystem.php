@@ -122,7 +122,6 @@ class filesystem{
 
 		if( $this->is_dir( $dirpath ) ){
 			// 既にディレクトリがあったら、作成を試みない。
-			$this->chmod( $dirpath , $perm );
 			return true;
 		}
 		if( !$this->is_dir( dirname($dirpath) ) ){
@@ -245,7 +244,7 @@ class filesystem{
 		}
 
 		return false;
-	}//rmdir()
+	}
 
 	/**
 	 * ディレクトリを再帰的に削除する。
@@ -287,7 +286,7 @@ class filesystem{
 		}
 
 		return false;
-	}//rmdir_r()
+	}
 
 
 	/**
@@ -312,13 +311,17 @@ class filesystem{
 			return false;
 		}
 
+		$is_new_file = !$this->is_file( $filepath );
+
 		if( !strlen( $content ?? '' ) ){
 			// 空白のファイルで上書きしたい場合
 			if( $this->is_file( $filepath ) ){
 				@unlink( $filepath );
 			}
 			@touch( $filepath );
-			$this->chmod( $filepath , $perm );
+			if($is_new_file){
+				$this->chmod( $filepath , $perm );
+			}
 			clearstatcache();
 			return $this->is_file( $filepath );
 		}
@@ -338,10 +341,12 @@ class filesystem{
 
 		fclose($fp);
 
-		$this->chmod( $filepath , $perm );
+		if($is_new_file){
+			$this->chmod( $filepath , $perm );
+		}
 		clearstatcache();
 		return !empty( $written );
-	}//save_file()
+	}
 
 	/**
 	 * ファイルの中身を文字列として取得する。
@@ -352,7 +357,7 @@ class filesystem{
 	public function read_file( $path ){
 		$path = $this->localize_path($path);
 		return file_get_contents( $path );
-	}//file_get_contents()
+	}
 
 	/**
 	 * ファイルの更新日時を比較する。
@@ -386,7 +391,7 @@ class filesystem{
 			return false;
 		}
 		return null;
-	}//is_newer_a_than_b()
+	}
 
 	/**
 	 * ファイル名/ディレクトリ名を変更する。
@@ -402,7 +407,7 @@ class filesystem{
 		if( !file_exists( $original ) ){ return false; }
 		if( !$this->is_writable( $original ) ){ return false; }
 		return rename( $original , $newname );
-	}//rename()
+	}
 
 	/**
 	 * ファイル名/ディレクトリ名を強制的に変更する。
@@ -698,7 +703,7 @@ class filesystem{
 		}
 		fclose($fp);
 		return $RTN;
-	} // read_csv()
+	}
 
 	/**
 	 * 配列をCSV形式に変換する。
@@ -744,7 +749,7 @@ class filesystem{
 			$RTN .= "\n";
 		}
 		return $RTN;
-	} // mk_csv()
+	}
 
 	/**
 	 * ファイルを複製する。
@@ -756,7 +761,7 @@ class filesystem{
 	 */
 	public function copy( $from , $to , $perm = null ){
 		$from = $this->localize_path($from);
-		$to   = $this->localize_path($to  );
+		$to = $this->localize_path($to);
 
 		if( !$this->is_file( $from ) ){
 			return false;
@@ -764,6 +769,8 @@ class filesystem{
 		if( !$this->is_readable( $from ) ){
 			return false;
 		}
+
+		$is_new_file = !$this->is_file( $to );
 
 		if( $this->is_file( $to ) ){
 			//	まったく同じファイルだった場合は、複製しないでtrueを返す。
@@ -774,9 +781,11 @@ class filesystem{
 		if( !@copy( $from , $to ) ){
 			return false;
 		}
-		$this->chmod( $to , $perm );
+		if($is_new_file){
+			$this->chmod( $to , $perm );
+		}
 		return true;
-	}//copy()
+	}
 
 	/**
 	 * ディレクトリを再帰的に複製する(下層ディレクトリも全てコピー)
@@ -836,7 +845,7 @@ class filesystem{
 		}
 
 		return $result;
-	} // copy_r()
+	}
 
 	/**
 	 * パーミッションを変更する。
@@ -862,7 +871,7 @@ class filesystem{
 			$perm = 0775; // コンフィグに設定モレがあった場合
 		}
 		return chmod( $filepath , $perm );
-	} // chmod()
+	}
 
 	/**
 	 * パーミッションを再帰的に変更する。(下層のファイルやディレクトリも全て)
@@ -951,7 +960,7 @@ class filesystem{
 		closedir($dr);
 		usort($RTN, "strnatcmp");
 		return	$RTN;
-	}//ls()
+	}
 
 	/**
 	 * ディレクトリの内部を比較し、$comparisonに含まれない要素を$targetから削除する。
@@ -985,7 +994,7 @@ class filesystem{
 		}
 
 		return true;
-	}//compare_and_cleanup()
+	}
 
 	/**
 	 * ディレクトリを同期する。
@@ -998,7 +1007,7 @@ class filesystem{
 		$this->copy_r( $path_sync_from , $path_sync_to );
 		$this->compare_and_cleanup( $path_sync_to , $path_sync_from );
 		return true;
-	}//sync_dir()
+	}
 
 	/**
 	 * 指定されたディレクトリ以下の、全ての空っぽのディレクトリを削除する。
@@ -1074,7 +1083,7 @@ class filesystem{
 			return	$result;
 		}
 		return true;
-	}//remove_empty_dir()
+	}
 
 
 	/**
@@ -1160,7 +1169,7 @@ class filesystem{
 		}
 
 		return true;
-	}//compare_dir()
+	}
 
 
 	/**
@@ -1173,7 +1182,7 @@ class filesystem{
 			return true;
 		}
 		return false;
-	}//is_unix()
+	}
 
 	/**
 	 * サーバがWindowsパスか調べる。
@@ -1185,7 +1194,7 @@ class filesystem{
 			return true;
 		}
 		return false;
-	}//is_windows()
+	}
 
 
 	/**
@@ -1324,5 +1333,4 @@ class filesystem{
 		}
 		return $RTN;
 	}
-
 }
