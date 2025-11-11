@@ -135,6 +135,16 @@ class mainTest extends PHPUnit\Framework\TestCase{
 			$this->fs->get_realpath($this->fs->get_realpath('./test/../test.txt', '/'))
 		);
 
+		$this->assertEquals(
+			$this->fs->get_realpath_n('./mktest/aaa.txt'),
+			$this->fs->normalize_path(realpath('.').'/mktest/aaa.txt')
+		);
+
+		$this->assertEquals(
+			$this->fs->get_realpath_l('./mktest/aaa.txt'),
+			$this->fs->localize_path(realpath('.').'/mktest/aaa.txt')
+		);
+
 	}
 
 	/**
@@ -180,6 +190,16 @@ class mainTest extends PHPUnit\Framework\TestCase{
 		$this->assertEquals(
 			$this->fs->get_relatedpath('../../reltest2/../aaa.txt', '\\reltest\\reltest2\\reltest3'),
 			'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'aaa.txt'
+		);
+
+		$this->assertEquals(
+			$this->fs->get_relatedpath_n('/reltest/aaa.txt', '/reltest/'),
+			$this->fs->normalize_path( './aaa.txt' )
+		);
+
+		$this->assertEquals(
+			$this->fs->get_relatedpath_l('/reltest/aaa.txt', '/reltest/'),
+			$this->fs->localize_path( './aaa.txt' )
 		);
 
 	}

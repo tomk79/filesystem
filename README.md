@@ -85,6 +85,8 @@ $ composer run-script documentation;
 ### tomk79/filesystem v1.3.0 (リリース日未定)
 
 - `$fs->save_file()`, `$fs->copy()`, `$fs->mkdir()` で、新規で作成した場合以外にパーミッションを更新しないようになった。
+- `$fs->get_realpath_n()`, `$fs->get_realpath_l()` を追加した。
+- `$fs->get_relatedpath_n()`, `$fs->get_relatedpath_l()` を追加した。
 
 ### tomk79/filesystem v1.2.5 (2025-03-05)
 

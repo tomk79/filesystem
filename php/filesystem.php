@@ -431,7 +431,7 @@ class filesystem{
 			}
 		}
 		return rename( $original , $newname );
-	} // rename_f()
+	}
 
 	/**
 	 * 絶対パスを得る。
@@ -511,6 +511,36 @@ class filesystem{
 	}
 
 	/**
+	 * 正規化された絶対パスを得る。
+	 *
+	 * `get_realpath()` と `normalize_path()` を組み合わせたメソッドです。
+	 *
+	 * @param string $path 対象のパス
+	 * @param string $cd カレントディレクトリパス。
+	 * 実在する有効なディレクトリのパス、または絶対パスの表現で指定される必要があります。
+	 * 省略時、カレントディレクトリを自動採用します。
+	 * @return string 正規化された絶対パス
+	 */
+	public function get_realpath_n( $path, $cd = '.' ){
+		return $this->normalize_path( $this->get_realpath( $path, $cd ) );
+	}
+
+	/**
+	 * OSの標準的な表現で絶対パスを得る。
+	 *
+	 * `get_realpath()` と `localize_path()` を組み合わせたメソッドです。
+	 *
+	 * @param string $path 対象のパス
+	 * @param string $cd カレントディレクトリパス。
+	 * 実在する有効なディレクトリのパス、または絶対パスの表現で指定される必要があります。
+	 * 省略時、カレントディレクトリを自動採用します。
+	 * @return string OSの標準的な表現での絶対パス
+	 */
+	public function get_realpath_l( $path, $cd = '.' ){
+		return $this->localize_path( $this->get_realpath( $path, $cd ) );
+	}
+
+	/**
 	 * 相対パスを得る。
 	 *
 	 * パス情報を受け取り、ドットスラッシュから始まる相対絶対パスに変換して返します。
@@ -584,6 +614,36 @@ class filesystem{
 	}
 
 	/**
+	 * 正規化された相対パスを得る。
+	 *
+	 * `get_relatedpath()` と `normalize_path()` を組み合わせたメソッドです。
+	 *
+	 * @param string $path 対象のパス
+	 * @param string $cd カレントディレクトリパス。
+	 * 実在する有効なディレクトリのパス、または絶対パスの表現で指定される必要があります。
+	 * 省略時、カレントディレクトリを自動採用します。
+	 * @return string 正規化された相対パス
+	 */
+	public function get_relatedpath_n( $path, $cd = '.' ){
+		return $this->normalize_path( $this->get_relatedpath( $path, $cd ) );
+	}
+
+	/**
+	 * OSの標準的な表現で相対パスを得る。
+	 *
+	 * `get_relatedpath()` と `localize_path()` を組み合わせたメソッドです。
+	 *
+	 * @param string $path 対象のパス
+	 * @param string $cd カレントディレクトリパス。
+	 * 実在する有効なディレクトリのパス、または絶対パスの表現で指定される必要があります。
+	 * 省略時、カレントディレクトリを自動採用します。
+	 * @return string OSの標準的な表現での相対パス
+	 */
+	public function get_relatedpath_l( $path, $cd = '.' ){
+		return $this->localize_path( $this->get_relatedpath( $path, $cd ) );
+	}
+
+	/**
 	 * パス情報を得る。
 	 *
 	 * @param string $path 対象のパス
@@ -654,7 +714,6 @@ class filesystem{
 		if(!strlen($path ?? '')){$path = null;}
 		return $path;
 	}
-
 
 	/**
 	 * CSVファイルを読み込む。
