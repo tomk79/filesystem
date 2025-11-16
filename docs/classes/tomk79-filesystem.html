@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-            <title>tomk79/filesystem v1.2.5 API Document</title>
+            <title>tomk79/filesystem v1.3.0 API Document</title>
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="../">
@@ -24,7 +24,7 @@
     </head>
 <body id="top">
     <header class="phpdocumentor-header phpdocumentor-section">
-    <h1 class="phpdocumentor-title"><a href="" class="phpdocumentor-title__link">tomk79/filesystem v1.2.5 API Document</a></h1>
+    <h1 class="phpdocumentor-title"><a href="" class="phpdocumentor-title__link">tomk79/filesystem v1.3.0 API Document</a></h1>
     <input class="phpdocumentor-header__menu-button" type="checkbox" id="menu-button" name="menu-button" />
     <label class="phpdocumentor-header__menu-icon" for="menu-button">
         <i class="fas fa-bars"></i>
@@ -259,11 +259,39 @@
 <dd>絶対パスを得る。</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a href="classes/tomk79-filesystem.html#method_get_realpath_l">get_realpath_l()</a>
+    <span>
+                                &nbsp;: string    </span>
+</dt>
+<dd>OSの標準的な表現で絶対パスを得る。</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a href="classes/tomk79-filesystem.html#method_get_realpath_n">get_realpath_n()</a>
+    <span>
+                                &nbsp;: string    </span>
+</dt>
+<dd>正規化された絶対パスを得る。</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a href="classes/tomk79-filesystem.html#method_get_relatedpath">get_relatedpath()</a>
     <span>
                                 &nbsp;: string    </span>
 </dt>
 <dd>相対パスを得る。</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a href="classes/tomk79-filesystem.html#method_get_relatedpath_l">get_relatedpath_l()</a>
+    <span>
+                                &nbsp;: string    </span>
+</dt>
+<dd>OSの標準的な表現で相対パスを得る。</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a href="classes/tomk79-filesystem.html#method_get_relatedpath_n">get_relatedpath_n()</a>
+    <span>
+                                &nbsp;: string    </span>
+</dt>
+<dd>正規化された相対パスを得る。</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a href="classes/tomk79-filesystem.html#method_is_dir">is_dir()</a>
@@ -592,7 +620,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">848</span>
+    <span class="phpdocumentor-element-found-in__line">916</span>
 
     </aside>
 
@@ -648,7 +676,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">879</span>
+    <span class="phpdocumentor-element-found-in__line">947</span>
 
     </aside>
 
@@ -716,7 +744,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">963</span>
+    <span class="phpdocumentor-element-found-in__line">1031</span>
 
     </aside>
 
@@ -772,7 +800,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1094</span>
+    <span class="phpdocumentor-element-found-in__line">1162</span>
 
     </aside>
 
@@ -843,7 +871,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1293</span>
+    <span class="phpdocumentor-element-found-in__line">1361</span>
 
     </aside>
 
@@ -899,7 +927,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1252</span>
+    <span class="phpdocumentor-element-found-in__line">1320</span>
 
     </aside>
 
@@ -964,7 +992,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">757</span>
+    <span class="phpdocumentor-element-found-in__line">821</span>
 
     </aside>
 
@@ -1029,7 +1057,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">792</span>
+    <span class="phpdocumentor-element-found-in__line">860</span>
 
     </aside>
 
@@ -1144,7 +1172,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">605</span>
+    <span class="phpdocumentor-element-found-in__line">670</span>
 
     </aside>
 
@@ -1191,7 +1219,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">632</span>
+    <span class="phpdocumentor-element-found-in__line">697</span>
 
     </aside>
 
@@ -1238,7 +1266,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">644</span>
+    <span class="phpdocumentor-element-found-in__line">709</span>
 
     </aside>
 
@@ -1285,7 +1313,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">919</span>
+    <span class="phpdocumentor-element-found-in__line">987</span>
 
     </aside>
 
@@ -1332,7 +1360,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">444</span>
+    <span class="phpdocumentor-element-found-in__line">449</span>
 
     </aside>
 
@@ -1386,6 +1414,126 @@
             -public
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_get_realpath_l">
+        get_realpath_l()
+        <a href="classes/tomk79-filesystem.html#method_get_realpath_l" class="headerlink"><i class="fas fa-link"></i></a>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">539</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">OSの標準的な表現で絶対パスを得る。</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">get_realpath_l</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$path</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$cd</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">&#039;.&#039;</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
+
+        <section class="phpdocumentor-description"><p><code class="prettyprint">get_realpath()</code> と <code class="prettyprint">localize_path()</code> を組み合わせたメソッドです。</p>
+</section>
+
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$path</span>
+                : <span class="phpdocumentor-signature__argument__return-type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>対象のパス</p>
+</section>
+
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$cd</span>
+                : <span class="phpdocumentor-signature__argument__return-type">string</span>
+                 = <span class="phpdocumentor-signature__argument__default-value">&#039;.&#039;</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>カレントディレクトリパス。
+実在する有効なディレクトリのパス、または絶対パスの表現で指定される必要があります。
+省略時、カレントディレクトリを自動採用します。</p>
+</section>
+
+            </dd>
+            </dl>
+
+    
+
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+    <span class="phpdocumentor-signature__response_type">string</span>
+            &mdash;
+            <section class="phpdocumentor-description"><p>OSの標準的な表現での絶対パス</p>
+</section>
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_get_realpath_n">
+        get_realpath_n()
+        <a href="classes/tomk79-filesystem.html#method_get_realpath_n" class="headerlink"><i class="fas fa-link"></i></a>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">524</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">正規化された絶対パスを得る。</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">get_realpath_n</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$path</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$cd</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">&#039;.&#039;</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
+
+        <section class="phpdocumentor-description"><p><code class="prettyprint">get_realpath()</code> と <code class="prettyprint">normalize_path()</code> を組み合わせたメソッドです。</p>
+</section>
+
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$path</span>
+                : <span class="phpdocumentor-signature__argument__return-type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>対象のパス</p>
+</section>
+
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$cd</span>
+                : <span class="phpdocumentor-signature__argument__return-type">string</span>
+                 = <span class="phpdocumentor-signature__argument__default-value">&#039;.&#039;</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>カレントディレクトリパス。
+実在する有効なディレクトリのパス、または絶対パスの表現で指定される必要があります。
+省略時、カレントディレクトリを自動採用します。</p>
+</section>
+
+            </dd>
+            </dl>
+
+    
+
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+    <span class="phpdocumentor-signature__response_type">string</span>
+            &mdash;
+            <section class="phpdocumentor-description"><p>正規化された絶対パス</p>
+</section>
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_get_relatedpath">
         get_relatedpath()
         <a href="classes/tomk79-filesystem.html#method_get_relatedpath" class="headerlink"><i class="fas fa-link"></i></a>
@@ -1393,7 +1541,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">519</span>
+    <span class="phpdocumentor-element-found-in__line">554</span>
 
     </aside>
 
@@ -1436,6 +1584,126 @@
     <span class="phpdocumentor-signature__response_type">string</span>
             &mdash;
             <section class="phpdocumentor-description"><p>相対パス</p>
+</section>
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_get_relatedpath_l">
+        get_relatedpath_l()
+        <a href="classes/tomk79-filesystem.html#method_get_relatedpath_l" class="headerlink"><i class="fas fa-link"></i></a>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">642</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">OSの標準的な表現で相対パスを得る。</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">get_relatedpath_l</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$path</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$cd</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">&#039;.&#039;</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
+
+        <section class="phpdocumentor-description"><p><code class="prettyprint">get_relatedpath()</code> と <code class="prettyprint">localize_path()</code> を組み合わせたメソッドです。</p>
+</section>
+
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$path</span>
+                : <span class="phpdocumentor-signature__argument__return-type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>対象のパス</p>
+</section>
+
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$cd</span>
+                : <span class="phpdocumentor-signature__argument__return-type">string</span>
+                 = <span class="phpdocumentor-signature__argument__default-value">&#039;.&#039;</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>カレントディレクトリパス。
+実在する有効なディレクトリのパス、または絶対パスの表現で指定される必要があります。
+省略時、カレントディレクトリを自動採用します。</p>
+</section>
+
+            </dd>
+            </dl>
+
+    
+
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+    <span class="phpdocumentor-signature__response_type">string</span>
+            &mdash;
+            <section class="phpdocumentor-description"><p>OSの標準的な表現での相対パス</p>
+</section>
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_get_relatedpath_n">
+        get_relatedpath_n()
+        <a href="classes/tomk79-filesystem.html#method_get_relatedpath_n" class="headerlink"><i class="fas fa-link"></i></a>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">627</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">正規化された相対パスを得る。</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">get_relatedpath_n</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$path</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$cd</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">&#039;.&#039;</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
+
+        <section class="phpdocumentor-description"><p><code class="prettyprint">get_relatedpath()</code> と <code class="prettyprint">normalize_path()</code> を組み合わせたメソッドです。</p>
+</section>
+
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$path</span>
+                : <span class="phpdocumentor-signature__argument__return-type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>対象のパス</p>
+</section>
+
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$cd</span>
+                : <span class="phpdocumentor-signature__argument__return-type">string</span>
+                 = <span class="phpdocumentor-signature__argument__default-value">&#039;.&#039;</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>カレントディレクトリパス。
+実在する有効なディレクトリのパス、または絶対パスの表現で指定される必要があります。
+省略時、カレントディレクトリを自動採用します。</p>
+</section>
+
+            </dd>
+            </dl>
+
+    
+
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+    <span class="phpdocumentor-signature__response_type">string</span>
+            &mdash;
+            <section class="phpdocumentor-description"><p>正規化された相対パス</p>
 </section>
 
     
@@ -1594,7 +1862,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">372</span>
+    <span class="phpdocumentor-element-found-in__line">377</span>
 
     </aside>
 
@@ -1708,7 +1976,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1171</span>
+    <span class="phpdocumentor-element-found-in__line">1239</span>
 
     </aside>
 
@@ -1743,7 +2011,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1183</span>
+    <span class="phpdocumentor-element-found-in__line">1251</span>
 
     </aside>
 
@@ -1825,7 +2093,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1232</span>
+    <span class="phpdocumentor-element-found-in__line">1300</span>
 
     </aside>
 
@@ -1877,7 +2145,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">937</span>
+    <span class="phpdocumentor-element-found-in__line">1005</span>
 
     </aside>
 
@@ -1924,7 +2192,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">713</span>
+    <span class="phpdocumentor-element-found-in__line">777</span>
 
     </aside>
 
@@ -2041,7 +2309,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">149</span>
+    <span class="phpdocumentor-element-found-in__line">148</span>
 
     </aside>
 
@@ -2097,7 +2365,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1207</span>
+    <span class="phpdocumentor-element-found-in__line">1275</span>
 
     </aside>
 
@@ -2155,7 +2423,7 @@ URIスキーム(http, https, ftp など) で始まる場合、2つのスラッ�
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">587</span>
+    <span class="phpdocumentor-element-found-in__line">652</span>
 
     </aside>
 
@@ -2202,7 +2470,7 @@ URIスキーム(http, https, ftp など) で始まる場合、2つのスラッ�
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">666</span>
+    <span class="phpdocumentor-element-found-in__line">730</span>
 
     </aside>
 
@@ -2265,7 +2533,7 @@ URIスキーム(http, https, ftp など) で始まる場合、2つのスラッ�
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">352</span>
+    <span class="phpdocumentor-element-found-in__line">357</span>
 
     </aside>
 
@@ -2312,7 +2580,7 @@ URIスキーム(http, https, ftp など) で始まる場合、2つのスラッ�
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1010</span>
+    <span class="phpdocumentor-element-found-in__line">1078</span>
 
     </aside>
 
@@ -2368,7 +2636,7 @@ URIスキーム(http, https, ftp など) で始まる場合、2つのスラッ�
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">398</span>
+    <span class="phpdocumentor-element-found-in__line">403</span>
 
     </aside>
 
@@ -2424,7 +2692,7 @@ URIスキーム(http, https, ftp など) で始まる場合、2つのスラッ�
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">416</span>
+    <span class="phpdocumentor-element-found-in__line">421</span>
 
     </aside>
 
@@ -2482,7 +2750,7 @@ URIスキーム(http, https, ftp など) で始まる場合、2つのスラッ�
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">187</span>
+    <span class="phpdocumentor-element-found-in__line">186</span>
 
     </aside>
 
@@ -2533,7 +2801,7 @@ URIスキーム(http, https, ftp など) で始まる場合、2つのスラッ�
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">225</span>
+    <span class="phpdocumentor-element-found-in__line">224</span>
 
     </aside>
 
@@ -2583,7 +2851,7 @@ URIスキーム(http, https, ftp など) で始まる場合、2つのスラッ�
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">259</span>
+    <span class="phpdocumentor-element-found-in__line">258</span>
 
     </aside>
 
@@ -2633,7 +2901,7 @@ URIスキーム(http, https, ftp など) で始まる場合、2つのスラッ�
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">304</span>
+    <span class="phpdocumentor-element-found-in__line">303</span>
 
     </aside>
 
@@ -2701,7 +2969,7 @@ URIスキーム(http, https, ftp など) で始まる場合、2つのスラッ�
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">997</span>
+    <span class="phpdocumentor-element-found-in__line">1065</span>
 
     </aside>
 
@@ -2757,7 +3025,7 @@ URIスキーム(http, https, ftp など) で始まる場合、2つのスラッ�
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">617</span>
+    <span class="phpdocumentor-element-found-in__line">682</span>
 
     </aside>
 

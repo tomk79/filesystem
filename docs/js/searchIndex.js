@@ -96,10 +96,30 @@ Search.appendIndex(
             "summary": "\u7D76\u5BFE\u30D1\u30B9\u3092\u5F97\u308B\u3002",
             "url": "classes/tomk79-filesystem.html#method_get_realpath"
         },                {
+            "fqsen": "\\tomk79\\filesystem\u003A\u003Aget_realpath_n\u0028\u0029",
+            "name": "get_realpath_n",
+            "summary": "\u6B63\u898F\u5316\u3055\u308C\u305F\u7D76\u5BFE\u30D1\u30B9\u3092\u5F97\u308B\u3002",
+            "url": "classes/tomk79-filesystem.html#method_get_realpath_n"
+        },                {
+            "fqsen": "\\tomk79\\filesystem\u003A\u003Aget_realpath_l\u0028\u0029",
+            "name": "get_realpath_l",
+            "summary": "OS\u306E\u6A19\u6E96\u7684\u306A\u8868\u73FE\u3067\u7D76\u5BFE\u30D1\u30B9\u3092\u5F97\u308B\u3002",
+            "url": "classes/tomk79-filesystem.html#method_get_realpath_l"
+        },                {
             "fqsen": "\\tomk79\\filesystem\u003A\u003Aget_relatedpath\u0028\u0029",
             "name": "get_relatedpath",
             "summary": "\u76F8\u5BFE\u30D1\u30B9\u3092\u5F97\u308B\u3002",
             "url": "classes/tomk79-filesystem.html#method_get_relatedpath"
+        },                {
+            "fqsen": "\\tomk79\\filesystem\u003A\u003Aget_relatedpath_n\u0028\u0029",
+            "name": "get_relatedpath_n",
+            "summary": "\u6B63\u898F\u5316\u3055\u308C\u305F\u76F8\u5BFE\u30D1\u30B9\u3092\u5F97\u308B\u3002",
+            "url": "classes/tomk79-filesystem.html#method_get_relatedpath_n"
+        },                {
+            "fqsen": "\\tomk79\\filesystem\u003A\u003Aget_relatedpath_l\u0028\u0029",
+            "name": "get_relatedpath_l",
+            "summary": "OS\u306E\u6A19\u6E96\u7684\u306A\u8868\u73FE\u3067\u76F8\u5BFE\u30D1\u30B9\u3092\u5F97\u308B\u3002",
+            "url": "classes/tomk79-filesystem.html#method_get_relatedpath_l"
         },                {
             "fqsen": "\\tomk79\\filesystem\u003A\u003Apathinfo\u0028\u0029",
             "name": "pathinfo",
