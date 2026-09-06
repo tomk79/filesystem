@@ -82,7 +82,7 @@ $ composer run-script documentation;
 
 ## Change Log
 
-### tomk79/filesystem v1.4.0 (リリース日未定)
+### tomk79/filesystem v1.4.0 (2026-09-06)
 
 - `$fs->convert_encoding()` の `$from_encoding` のデフォルト値を `UTF-8` に変更した。(文字セットの自動判定により、アラビア語やベトナム語などが文字化けする問題を修正するため)
 - `$fs->read_csv()` の `charset` オプションのデフォルト値を `UTF-8` に変更した。(同上。UTF-8以外のCSVを読み込む場合は、明示的な指定が必要)
