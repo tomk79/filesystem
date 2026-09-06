@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-            <title>tomk79/filesystem v1.3.0 API Document</title>
+            <title>tomk79/filesystem v1.4.0 API Document</title>
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="../">
@@ -24,7 +24,7 @@
     </head>
 <body id="top">
     <header class="phpdocumentor-header phpdocumentor-section">
-    <h1 class="phpdocumentor-title"><a href="" class="phpdocumentor-title__link">tomk79/filesystem v1.3.0 API Document</a></h1>
+    <h1 class="phpdocumentor-title"><a href="" class="phpdocumentor-title__link">tomk79/filesystem v1.4.0 API Document</a></h1>
     <input class="phpdocumentor-header__menu-button" type="checkbox" id="menu-button" name="menu-button" />
     <label class="phpdocumentor-header__menu-icon" for="menu-button">
         <i class="fas fa-bars"></i>
@@ -871,7 +871,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1361</span>
+    <span class="phpdocumentor-element-found-in__line">1377</span>
 
     </aside>
 
@@ -927,7 +927,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1320</span>
+    <span class="phpdocumentor-element-found-in__line">1336</span>
 
     </aside>
 
@@ -963,7 +963,7 @@
                 : <span class="phpdocumentor-signature__argument__return-type">string</span>
                  = <span class="phpdocumentor-signature__argument__default-value">null</span>            </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>変換前の文字セット</p>
+                    <section class="phpdocumentor-description"><p>変換前の文字セット(省略時、UTF-8)</p>
 </section>
 
             </dd>
@@ -2093,7 +2093,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1300</span>
+    <span class="phpdocumentor-element-found-in__line">1316</span>
 
     </aside>
 
@@ -2365,7 +2365,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="php/filesystem.php"><a href="files/php-filesystem.html"><abbr title="php/filesystem.php">filesystem.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1275</span>
+    <span class="phpdocumentor-element-found-in__line">1284</span>
 
     </aside>
 
@@ -2373,7 +2373,7 @@
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">normalize_path</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$path</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
+                    <span class="phpdocumentor-signature__name">normalize_path</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$path</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$options</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">array()</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
 
         <section class="phpdocumentor-description"><p>受け取ったパスを、スラッシュ区切りの表現に正規化します。
 Windowsのボリュームラベルが付いている場合は削除します。
@@ -2385,6 +2385,11 @@ URIスキーム(http, https, ftp など) で始まる場合、2つのスラッ�
 <li>例： <code class="prettyprint">http://a/b/c.html</code> → <code class="prettyprint">http://a/b/c.html</code> URIスキームは残されます。</li>
 <li>例： <code class="prettyprint">//a/b/c.html</code> → <code class="prettyprint">//a/b/c.html</code> ドメイン名は残されます。</li>
 </ul>
+<p>受け取ったパスの文字セットは、<code class="prettyprint">$options['charset']</code> で指定できます。
+省略時は UTF-8 として扱います。</p>
+<p>なお、変換先は内部エンコーディング (<code class="prettyprint">mb_internal_encoding()</code>) です。
+内部エンコーディング自体が Shift_JIS 系の場合、変換が実質的に行われないため、
+2バイト目に <code class="prettyprint">0x5C</code> を含む文字 (<code class="prettyprint">表</code>、<code class="prettyprint">十</code>、<code class="prettyprint">ソ</code> など) は正しく扱えません。</p>
 </section>
 
         <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
@@ -2395,6 +2400,18 @@ URIスキーム(http, https, ftp など) で始まる場合、2つのスラッ�
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
                     <section class="phpdocumentor-description"><p>正規化するパス</p>
+</section>
+
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$options</span>
+                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
+                 = <span class="phpdocumentor-signature__argument__default-value">array()</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>オプション</p>
+<ul>
+<li>charset = 受け取るパスの文字セット(省略時、UTF-8)</li>
+</ul>
 </section>
 
             </dd>

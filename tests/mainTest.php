@@ -83,6 +83,42 @@ class mainTest extends PHPUnit\Framework\TestCase{
 			'/test/windows/path/'
 		);
 
+		// UTF-8のパスが、そのまま維持されること。
+		// (以前は文字セットの自動判定が働き、アラビア語・ベトナム語などが化けていた)
+		$samples = array(
+			'/data/Đường/Đá.txt',     // ベトナム語
+			'/data/ݡݢ.txt',           // アラビア語補助 (U+0761, U+0762)
+			'/data/العربية.txt',      // アラビア語
+			'/data/日本語.txt',       // 日本語 (退行していないこと)
+			'/data/🍣.txt',           // 絵文字
+		);
+		foreach( $samples as $sample_utf8 ){
+			$this->assertEquals(
+				$this->fs->normalize_path( $sample_utf8 ),
+				$sample_utf8
+			);
+		}
+
+		// charset オプションで、UTF-8以外のパスを受け取れること。
+		// `表` は SJIS-win で 0x955C となり、2バイト目がバックスラッシュと衝突する。
+		$this->assertEquals(
+			$this->fs->normalize_path(
+				mb_convert_encoding('C:\\表\\test.txt', 'SJIS-win', 'UTF-8'),
+				array('charset'=>'SJIS-win')
+			),
+			'/表/test.txt'
+		);
+
+		// charset オプションが未指定・空の場合は UTF-8 として扱われること。
+		$this->assertEquals(
+			$this->fs->normalize_path('C:\\表\\test.txt', array()),
+			'/表/test.txt'
+		);
+		$this->assertEquals(
+			$this->fs->normalize_path('C:\\表\\test.txt', array('charset'=>null)),
+			'/表/test.txt'
+		);
+
 	}
 
 	/**
@@ -258,11 +294,29 @@ class mainTest extends PHPUnit\Framework\TestCase{
 
 		$this->assertEquals(
 			$this->fs->convert_encoding(
-				$this->fs->convert_encoding($sample, 'SJIS-win'),
-				'UTF-8'
+				$this->fs->convert_encoding($sample, 'SJIS-win', 'UTF-8'),
+				'UTF-8', 'SJIS-win'
 			),
 			$sample
 		);
+
+		// 変換元を省略した場合、UTF-8として扱われ、内容が変化しないこと。
+		// (以前は文字セットの自動判定が働き、アラビア語・ベトナム語などが化けていた)
+		$samples = array(
+			'Đường',                  // ベトナム語
+			'Đá',                     // ベトナム語
+			'Nguyễn Văn Tú',          // ベトナム語
+			'العربية',                // アラビア語
+			'ݡݢ',                     // アラビア語補助 (U+0761, U+0762)
+			'日本語',                 // 日本語 (退行していないこと)
+			'🍣',                     // 絵文字
+		);
+		foreach( $samples as $sample_utf8 ){
+			$this->assertEquals(
+				$this->fs->convert_encoding( $sample_utf8 ),
+				$sample_utf8
+			);
+		}
 
 	}
 
@@ -653,6 +707,42 @@ class mainTest extends PHPUnit\Framework\TestCase{
 			$this->fs->convert_crlf($csv01[10][0]),
 			$this->fs->convert_crlf('このセルは、改行を含みます。'."\n\n".'ここまでで1つのセルです。')
 		);
+
+
+		// UTF-8のセルが、そのまま読み込まれること。
+		// (以前は文字セットの自動判定がセル単位で働き、アラビア語・ベトナム語などが化けていた)
+		$samples = array(
+			'Đường',                  // ベトナム語
+			'Nguyễn Văn Tú',          // ベトナム語
+			'العربية',                // アラビア語
+			'ݡݢ',                     // アラビア語補助 (U+0761, U+0762)
+			'日本語',                 // 日本語 (退行していないこと)
+			'🍣',                     // 絵文字
+		);
+		$utf8CsvPath = __DIR__.'/mktest/test_read_csv_utf8.csv';
+		$this->assertTrue( $this->fs->save_file( $utf8CsvPath, $this->fs->mk_csv( array($samples) ) ) );
+		clearstatcache();
+
+		$csv02 = $this->fs->read_csv( $utf8CsvPath );
+		$this->assertEquals( $csv02[0], $samples );
+
+		$this->assertTrue( $this->fs->rm( $utf8CsvPath ) );
+		$this->assertFalse( $this->fs->is_file( $utf8CsvPath ) );
+
+
+		// charset オプションで、UTF-8以外のCSVを読み込めること。
+		$sjisCsvPath = __DIR__.'/mktest/test_read_csv_sjis.csv';
+		$this->assertTrue( $this->fs->save_file(
+			$sjisCsvPath,
+			mb_convert_encoding( '"日本語1","日本語2"'."\n", 'SJIS-win', 'UTF-8' )
+		) );
+		clearstatcache();
+
+		$csv03 = $this->fs->read_csv( $sjisCsvPath, array('charset'=>'SJIS-win') );
+		$this->assertEquals( $csv03[0], array('日本語1','日本語2') );
+
+		$this->assertTrue( $this->fs->rm( $sjisCsvPath ) );
+		$this->assertFalse( $this->fs->is_file( $sjisCsvPath ) );
 
 	}
 

@@ -746,7 +746,7 @@ class filesystem{
 		if( !isset($options['enclosure']) || !strlen( $options['enclosure'] ?? '' ) )    { $options['enclosure'] = '"'; }
 		if( !isset($options['escape'])    || !strlen( $options['escape'] ?? '' ) )       { $options['escape'] = PHP_VERSION_ID >= 80000 ? "" : "\\"; } // NOTE: PHP 7 系では、空文字列を指定するとエラーになる。
 		if( !isset($options['size'])      || !strlen( $options['size'] ?? '' ) )         { $options['size'] = 0; }
-		if( !isset($options['charset'])   || !strlen( $options['charset'] ?? '' ) )      { $options['charset'] = 'UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP'; }//←CSVの文字セット
+		if( !isset($options['charset'])   || !strlen( $options['charset'] ?? '' ) )      { $options['charset'] = 'UTF-8'; }//←CSVの文字セット
 
 		$RTN = array();
 		$fp = fopen( $path, 'r' );
@@ -1269,13 +1269,29 @@ class filesystem{
 	 *  - 例： `http://a/b/c.html` → `http://a/b/c.html` URIスキームは残されます。
 	 *  - 例： `//a/b/c.html` → `//a/b/c.html` ドメイン名は残されます。
 	 *
+	 * 受け取ったパスの文字セットは、`$options['charset']` で指定できます。
+	 * 省略時は UTF-8 として扱います。
+	 *
+	 * なお、変換先は内部エンコーディング (`mb_internal_encoding()`) です。
+	 * 内部エンコーディング自体が Shift_JIS 系の場合、変換が実質的に行われないため、
+	 * 2バイト目に `0x5C` を含む文字 (`表`、`十`、`ソ` など) は正しく扱えません。
+	 *
 	 * @param string $path 正規化するパス
+	 * @param array $options オプション
+	 * - charset = 受け取るパスの文字セット(省略時、UTF-8)
 	 * @return string 正規化されたパス
 	 */
-	public function normalize_path($path){
+	public function normalize_path($path, $options = array()){
 		if( is_null($path) ){ return null; }
+
+		// Normalize $options
+		if( !is_array($options) ){
+			$options = array();
+		}
+		if( !isset($options['charset'])   || !strlen( $options['charset'] ?? '' ) )      { $options['charset'] = 'UTF-8'; }//←受け取るパスの文字セット
+
 		$path = trim($path ?? '');
-		$path = $this->convert_encoding( $path );//文字コードを揃える
+		$path = $this->convert_encoding( $path, null, $options['charset'] );//文字コードを揃える
 		$path = preg_replace( '/\\/|\\\\/s', '/', $path );//バックスラッシュをスラッシュに置き換える。
 		$path = preg_replace( '/^[A-Z]\\:\\//s', '/', $path );//Windowsのボリュームラベルを削除
 		$prefix = '';
@@ -1314,7 +1330,7 @@ class filesystem{
 	 *
 	 * @param mixed $text テキスト
 	 * @param string $to_encoding 文字セット(省略時、内部文字セット)
-	 * @param string $from_encoding 変換前の文字セット
+	 * @param string $from_encoding 変換前の文字セット(省略時、UTF-8)
 	 * @return string 文字セット変換後のテキスト
 	 */
 	public function convert_encoding( $text, $to_encoding = null, $from_encoding = null ){
@@ -1331,7 +1347,7 @@ class filesystem{
 			$to_encoding_fin = 'UTF-8';
 		}
 
-		$from_encoding_fin = (is_string($from_encoding) && strlen($from_encoding) ? $from_encoding : 'UTF-8,SJIS-win,cp932,eucJP-win,SJIS,EUC-JP,JIS,ASCII');
+		$from_encoding_fin = (is_string($from_encoding) && strlen($from_encoding) ? $from_encoding : 'UTF-8');
 
 		// ---
 		if( is_array( $text ) ){

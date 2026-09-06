@@ -82,6 +82,13 @@ $ composer run-script documentation;
 
 ## Change Log
 
+### tomk79/filesystem v1.4.0 (リリース日未定)
+
+- `$fs->convert_encoding()` の `$from_encoding` のデフォルト値を `UTF-8` に変更した。(文字セットの自動判定により、アラビア語やベトナム語などが文字化けする問題を修正するため)
+- `$fs->read_csv()` の `charset` オプションのデフォルト値を `UTF-8` に変更した。(同上。UTF-8以外のCSVを読み込む場合は、明示的な指定が必要)
+- `$fs->normalize_path()`, `$fs->get_realpath_n()`, `$fs->get_relatedpath_n()` が、受け取るパスを `UTF-8` として扱うようになった。(同上)
+- `$fs->normalize_path()` のオプションに `charset` を追加した。
+
 ### tomk79/filesystem v1.3.0 (2025-11-16)
 
 - `$fs->save_file()`, `$fs->copy()`, `$fs->mkdir()` で、新規で作成した場合以外にパーミッションを更新しないようになった。
